@@ -291,7 +291,7 @@ export default function App() {
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#F2F3F9'}}>
       <div style={{textAlign:'center'}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:P,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}><Ico n="check" size={24} color="white"/></div>
-        <p style={{fontSize:14,color:'#B0B8CC',fontFamily:"'DM Sans',-apple-system,sans-serif"}}>頛銝凌?/p>
+        <p style={{fontSize:14,color:'#B0B8CC'}}>載入中…</p>
       </div>
     </div>
   );
