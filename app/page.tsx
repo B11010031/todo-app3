@@ -3,13 +3,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Task, TodoList } from '@/types';
 
 const PRI_BAR: Record<string,string> = { high:'#E8706A', medium:'#F5C842', low:'#72C48A', none:'transparent' };
-const PRI_LABEL: Record<string,string> = { high:'High', medium:'Medium', low:'Low', none:'None' };
-const PRI_DOT: Record<string,string> = { high:'#E8706A', medium:'#F5C842', low:'#72C48A', none:'#DDDFE8' };
+const PRI_LABEL: Record<string,string> = { high:'高優先', medium:'中優先', low:'低優先', none:'未設定' };
+const PRI_日OT: Record<string,string> = { high:'#E8706A', medium:'#F5C842', low:'#72C48A', none:'#日日日FE8' };
 const ICONS = ['briefcase','home','folder','heart','star','book','dumbbell','shopping-cart','plane','banknote'];
-const COLORS = ['#F0A8A0','#F5D080','#80D5B8','#B8AEFF','#7B6BE0','#7BB8E8','#E8706A','#C8CCD8'];
+const COLORS = ['#F0A8A0','#F5日080','#80日5B8','#B8AEFF','#7B6BE0','#7BB8E8','#E8706A','#C8CC日8'];
 const P = '#7B6BE0';
 
-function Ico({ n, size=20, color='currentColor' }: { n:string; size?:number; color?:string }) {
+function Ico({ n, size=20, color='current顏色' }: { n:string; size?:number; color?:string }) {
   const paths: Record<string,string> = {
     sun:'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z',
     list:'M4 6h16M4 10h16M4 14h16M4 18h16',
@@ -41,33 +41,33 @@ function Ico({ n, size=20, color='currentColor' }: { n:string; size?:number; col
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={paths[n]||paths.star}/></svg>;
 }
 
-function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub }:{
+function TaskCard({ task, lists, onToggle, onOpen, on日elete, onPin, onToggleSub }:{
   task:Task; lists:TodoList[];
   onToggle:(id:string,subs:string[])=>void;
   onOpen:(id:string)=>void;
-  onDelete:(id:string)=>void;
+  on日elete:(id:string)=>void;
   onPin:(id:string)=>void;
   onToggleSub:(tid:string,sid:string)=>void;
 }) {
   const [sw, setSw] = useState(0);
   const x0 = useRef(0);
-  const isDone = task.status === 'done';
+  const is日one = task.status === 'done';
   const list = lists.find(l=>l.id===task.listId);
-  const subDone = task.subTasks.filter(s=>s.done).length;
-  const chipColors = ['rgba(123,107,224,.10)','rgba(245,166,35,.10)','rgba(114,196,138,.12)','rgba(184,174,255,.18)'];
-  const textColors = ['#6B5EE0','#92600A','#2E7D32','#4527A0'];
+  const sub日one = task.subTasks.filter(s=>s.done).length;
+  const chip顏色s = ['rgba(123,107,224,.10)','rgba(245,166,35,.10)','rgba(114,196,138,.12)','rgba(184,174,255,.18)'];
+  const text顏色s = ['#6B5EE0','#92600A','#2E7日32','#4527A0'];
   const ci = lists.findIndex(l=>l.id===task.listId) % 4;
 
-  if (isDone) return (
+  if (is日one) return (
     <div style={{margin:'0 14px 7px'}}>
       <div style={{display:'flex',borderRadius:10,background:'#EAEBF0',cursor:'pointer'}} onClick={()=>onOpen(task.id)}>
-        <div style={{width:3,borderRadius:'3px 0 0 3px',background:'#D4D6E0',flexShrink:0}}/>
+        <div style={{width:3,borderRadius:'3px 0 0 3px',background:'#日4日6E0',flexShrink:0}}/>
         <div style={{flex:1,padding:'10px 12px'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <button style={{width:17,height:17,borderRadius:'50%',background:'#C0BCCF',border:'1.5px solid #C0BCCF',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggle(task.id,[]);}}>
               <Ico n="check" size={8} color="#E8EAF0"/>
             </button>
-            <span style={{fontSize:13,color:'#A8AEBB',textDecoration:'line-through',fontWeight:400}}>{task.name}</span>
+            <span style={{fontSize:13,color:'#A8AEBB',text日ecoration:'line-through',font三ight:400}}>{task.name}</span>
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
           <div style={{flex:1,background:P,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onClick={()=>{onPin(task.id);setSw(0);}}>
             <Ico n={task.pinned?'pin-off':'pin'} size={20} color="white"/>
           </div>
-          <div style={{width:72,background:'#E87070',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onClick={()=>{onDelete(task.id);}}>
+          <div style={{width:72,background:'#E87070',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onClick={()=>{on日elete(task.id);}}>
             <Ico n="trash" size={20} color="white"/>
           </div>
         </div>
@@ -89,7 +89,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
       <div
         style={{position:'relative',display:'flex',borderRadius:10,background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',transition:sw===0?'transform .18s':'none',transform:`translateX(${sw}px)`,cursor:'pointer',userSelect:'none'}}
         onTouchStart={e=>{x0.current=e.touches[0].clientX;}}
-        onTouchMove={e=>{const dx=e.touches[0].clientX-x0.current;if(dx<0)setSw(Math.max(dx,-96));else if(dx>10&&sw<0)setSw(0);}}
+        onTouch一ve={e=>{const dx=e.touches[0].clientX-x0.current;if(dx<0)setSw(Math.max(dx,-96));else if(dx>10&&sw<0)setSw(0);}}
         onTouchEnd={()=>{if(sw>-44)setSw(0);}}
         onClick={()=>{if(sw<-44){setSw(0);}else if(sw===0)onOpen(task.id);}}
       >
@@ -97,24 +97,24 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
         <div style={{width:3,flexShrink:0,borderRadius:'3px 0 0 3px',background:PRI_BAR[task.priority]||'transparent'}}/>
         <div style={{flex:1,padding:'10px 12px'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <button style={{width:17,height:17,borderRadius:'50%',border:'1.5px solid #D0C8FF',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggle(task.id,task.subTasks.map(s=>s.id));}}/>
-            <span style={{fontSize:13,color:'#1A1D2E',flex:1,fontWeight:500,lineHeight:1.3}}>{task.name}</span>
+            <button style={{width:17,height:17,borderRadius:'50%',border:'1.5px solid #日0C8FF',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggle(task.id,task.subTasks.map(s=>s.id));}}/>
+            <span style={{fontSize:13,color:'#1A1日2E',flex:1,font三ight:500,lineHeight:1.3}}>{task.name}</span>
           </div>
-          {(list||task.dueDate) && (
+          {(list||task.due時間) && (
             <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4,paddingLeft:25}}>
-              {list && <span style={{fontSize:10,padding:'1px 7px',borderRadius:20,fontWeight:600,background:chipColors[ci],color:textColors[ci]}}>{list.name}</span>}
-              {task.dueDate && <span style={{fontSize:10,color:'#B0B8CC',display:'flex',alignItems:'center',gap:2}}><Ico n="clock" size={10} color="#B0B8CC"/>{task.dueDate.startsWith(new Date().toISOString().slice(0,10))?'Today':task.dueDate.slice(5,10).replace('-','/')}</span>}
+              {list && <span style={{fontSize:10,padding:'1px 7px',borderRadius:20,font三ight:600,background:chip顏色s[ci],color:text顏色s[ci]}}>{list.name}</span>}
+              {task.due時間 && <span style={{fontSize:10,color:'#B0B8CC',display:'flex',alignItems:'center',gap:2}}><Ico n="clock" size={10} color="#B0B8CC"/>{task.due時間.startsWith(new 時間().toISOString().slice(0,10))?'今天':task.due時間.slice(5,10).replace('-','/')}</span>}
             </div>
           )}
           {task.subTasks.length>0 && (
             <div style={{marginTop:5,borderTop:'.5px solid #F0F2F8',paddingTop:4}}>
-              <div style={{fontSize:10,color:'#B0B8CC',textAlign:'right',marginBottom:2}}>{subDone}/{task.subTasks.length}</div>
+              <div style={{fontSize:10,color:'#B0B8CC',textAlign:'right',marginBottom:2}}>{sub日one}/{task.subTasks.length}</div>
               {task.subTasks.map(s=>(
                 <div key={s.id} style={{display:'flex',alignItems:'center',gap:5,marginBottom:3,paddingLeft:25}}>
-                  <button style={{width:12,height:12,borderRadius:'50%',border:'1.5px solid #D0C8FF',background:s.done?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggleSub(task.id,s.id);}}>
+                  <button style={{width:12,height:12,borderRadius:'50%',border:'1.5px solid #日0C8FF',background:s.done?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggleSub(task.id,s.id);}}>
                     {s.done&&<Ico n="check" size={6} color="#E8EAF0"/>}
                   </button>
-                  <span style={{fontSize:11,color:s.done?'#B0B8CC':'#3A3D52',textDecoration:s.done?'line-through':'none'}}>{s.name}</span>
+                  <span style={{fontSize:11,color:s.done?'#B0B8CC':'#3A3日52',text日ecoration:s.done?'line-through':'none'}}>{s.name}</span>
                 </div>
               ))}
             </div>
@@ -128,38 +128,38 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
 type Tab = 'today'|'all'|'lists'|'cal';
 
 export default function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [項任務, setTasks] = useState<Task[]>([]);
   const [lists, setLists] = useState<TodoList[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('today');
-  const [detailId, setDetailId] = useState<string|null>(null);
+  const [detailId, set日etailId] = useState<string|null>(null);
   const [prevTab, setPrevTab] = useState<Tab>('today');
   const [ldId, setLdId] = useState<string|null>(null);
   const [ldFilter, setLdFilter] = useState<'all'|'today'|'hi'|'done'>('all');
-  const [addOpen, setAddOpen] = useState(false);
-  const [addName, setAddName] = useState('');
-  const [addDue, setAddDue] = useState('');
-  const [addLid, setAddLid] = useState('');
-  const [addPri, setAddPri] = useState<Task['priority']>('none');
+  const [addOpen, set新增Open] = useState(false);
+  const [addName, set新增Name] = useState('');
+  const [add日ue, set新增日ue] = useState('');
+  const [addLid, set新增Lid] = useState('');
+  const [addPri, set新增Pri] = useState<Task['priority']>('none');
   const [pickerField, setPickerField] = useState<'date'|'list'|'pri'|null>(null);
   const [pickerTid, setPickerTid] = useState<string|null>(null);
-  const [calSel, setCalSel] = useState(new Date().getDate());
-  const [calMo, setCalMo] = useState(new Date().getMonth());
-  const [calYr, setCalYr] = useState(new Date().getFullYear());
+  const [calSel, setCalSel] = useState(new 時間().get時間());
+  const [cal一, setCal一] = useState(new 時間().get一nth());
+  const [calYr, setCalYr] = useState(new 時間().getFullYear());
   const [listSheetOpen, setListSheetOpen] = useState(false);
   const [editListId, setEditListId] = useState<string|null>(null);
   const [newListName, setNewListName] = useState('');
-  const [newListIcon, setNewListIcon] = useState('folder');
-  const [newListColor, setNewListColor] = useState('#80D5B8');
-  const [detNotes, setDetNotes] = useState('');
+  const [newList圖示, setNewList圖示] = useState('folder');
+  const [newList顏色, setNewList顏色] = useState('#80日5B8');
+  const [det備忘錄, set日et備忘錄] = useState('');
   const [newSubName, setNewSubName] = useState('');
   const [toast, setToast] = useState('');
-  const [lastUndo, setLastUndo] = useState<any>(null);
+  const [last復原, setLast復原] = useState<any>(null);
   const toastRef = useRef<NodeJS.Timeout|null>(null);
 
   const load = useCallback(async()=>{
     try {
-      const [t,l] = await Promise.all([fetch('/api/tasks').then(r=>r.json()),fetch('/api/lists').then(r=>r.json())]);
+      const [t,l] = await Promise.all([fetch('/api/項任務').then(r=>r.json()),fetch('/api/lists').then(r=>r.json())]);
       setTasks(Array.isArray(t)?t:[]); setLists(Array.isArray(l)?l:[]);
     } catch { setTasks([]); setLists([]); }
     finally { setLoading(false); }
@@ -167,101 +167,101 @@ export default function App() {
   useEffect(()=>{load();},[load]);
 
   const showToast=(msg:string)=>{setToast(msg);if(toastRef.current)clearTimeout(toastRef.current);toastRef.current=setTimeout(()=>setToast(''),2800);};
-  const todayStr=new Date().toISOString().slice(0,10);
-  const fmtDue=(d:string|null)=>{if(!d)return'';if(d==='today'||d===todayStr)return'Today';if(d==='tomorrow')return'Tomorrow';return d.slice(5,10).replace('-','/');};
+  const todayStr=new 時間().toISOString().slice(0,10);
+  const fmt日ue=(d:string|null)=>{if(!d)return'';if(d==='today'||d===todayStr)return'今天';if(d==='tomorrow')return'明天';return d.slice(5,10).replace('-','/');};
 
-  const toggleDone=async(id:string,subIds:string[])=>{
-    const t=tasks.find(x=>x.id===id);if(!t)return;
+  const toggle日one=async(id:string,subIds:string[])=>{
+    const t=項任務.find(x=>x.id===id);if(!t)return;
     const ns=t.status==='done'?'todo':'done';
     setTasks(p=>p.map(x=>x.id===id?{...x,status:ns,subTasks:ns==='done'?x.subTasks.map(s=>({...s,done:true})):x.subTasks}:x));
-    setLastUndo({type:'toggle',id,prev:t.status,psubs:t.subTasks});
-    showToast(ns==='done'?'Done v':'Undone');
-    await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:ns,subTaskIds:ns==='done'?subIds:[]})});
+    setLast復原({type:'toggle',id,prev:t.status,psubs:t.subTasks});
+    showToast(ns==='done'?'任務已完成 ✓':'任務已復原');
+    await fetch(`/api/項任務/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:ns,subTaskIds:ns==='done'?subIds:[]})});
   };
   const toggleSub=async(tid:string,sid:string)=>{
-    const t=tasks.find(x=>x.id===tid);const s=t?.subTasks.find(x=>x.id===sid);if(!s)return;
+    const t=項任務.find(x=>x.id===tid);const s=t?.subTasks.find(x=>x.id===sid);if(!s)return;
     setTasks(p=>p.map(x=>x.id===tid?{...x,subTasks:x.subTasks.map(ss=>ss.id===sid?{...ss,done:!ss.done}:ss)}:x));
-    await fetch(`/api/tasks/${sid}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:s.done?'todo':'done'})});
+    await fetch(`/api/項任務/${sid}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:s.done?'todo':'done'})});
   };
   const deleteTask=async(id:string)=>{
-    const t=tasks.find(x=>x.id===id);if(!t)return;
-    setLastUndo({type:'delete',task:t});setTasks(p=>p.filter(x=>x.id!==id));
-    showToast(`'${t.name}'Deleted`);
-    await fetch(`/api/tasks/${id}`,{method:'DELETE'});
+    const t=項任務.find(x=>x.id===id);if(!t)return;
+    setLast復原({type:'delete',task:t});setTasks(p=>p.filter(x=>x.id!==id));
+    showToast(`'${t.name}'日eleted`);
+    await fetch(`/api/項任務/${id}`,{method:'日ELETE'});
   };
   const togglePin=async(id:string)=>{
-    const t=tasks.find(x=>x.id===id);if(!t)return;
+    const t=項任務.find(x=>x.id===id);if(!t)return;
     setTasks(p=>p.map(x=>x.id===id?{...x,pinned:!x.pinned}:x));
-    await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pinned:!t.pinned})});
-    showToast(t.pinned?'Unpinned':'Pinned');
+    await fetch(`/api/項任務/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pinned:!t.pinned})});
+    showToast(t.pinned?'已取消置頂':'已置頂');
   };
   const undoLast=()=>{
-    if(!lastUndo)return;
-    if(lastUndo.type==='toggle'){setTasks(p=>p.map(x=>x.id===lastUndo.id?{...x,status:lastUndo.prev,subTasks:lastUndo.psubs}:x));}
-    else if(lastUndo.type==='delete'){setTasks(p=>[...p,lastUndo.task]);}
-    setLastUndo(null);setToast('');
+    if(!last復原)return;
+    if(last復原.type==='toggle'){setTasks(p=>p.map(x=>x.id===last復原.id?{...x,status:last復原.prev,subTasks:last復原.psubs}:x));}
+    else if(last復原.type==='delete'){setTasks(p=>[...p,last復原.task]);}
+    setLast復原(null);setToast('');
   };
   const updateField=async(id:string,data:Record<string,any>)=>{
     setTasks(p=>p.map(x=>x.id===id?{...x,...data}:x));
-    await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    await fetch(`/api/項任務/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
   };
   const submitTask=async()=>{
     if(!addName.trim())return;
-    const due=addDue===todayStr?'today':addDue||null;
-    const body={name:addName.trim(),listId:addLid||lists[0]?.id,priority:addPri,dueDate:due};
-    setAddOpen(false);setAddName('');setAddDue('');setAddLid('');setAddPri('none');
-    const res=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const due=add日ue===todayStr?'today':add日ue||null;
+    const body={name:addName.trim(),listId:addLid||lists[0]?.id,priority:addPri,due時間:due};
+    set新增Open(false);set新增Name('');set新增日ue('');set新增Lid('');set新增Pri('none');
+    const res=await fetch('/api/項任務',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const c=await res.json();
     const l=lists.find(x=>x.id===c.listId);
-    setTasks(p=>[{...c,listName:l?.name||'',listColor:l?.color||'',listIcon:l?.icon||'',subTasks:[],...c},...p]);
-    showToast(`'${addName.trim()}'Add`);
+    setTasks(p=>[{...c,listName:l?.name||'',list顏色:l?.color||'',list圖示:l?.icon||'',subTasks:[],...c},...p]);
+    showToast(`'${addName.trim()}'新增`);
   };
   const addSub=async()=>{
     if(!newSubName.trim()||!detailId)return;
-    const t=tasks.find(x=>x.id===detailId);
-    const res=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:newSubName.trim(),parentTaskId:detailId,listId:t?.listId})});
+    const t=項任務.find(x=>x.id===detailId);
+    const res=await fetch('/api/項任務',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:newSubName.trim(),parentTaskId:detailId,listId:t?.listId})});
     const sub=await res.json();
     setTasks(p=>p.map(x=>x.id===detailId?{...x,subTasks:[...x.subTasks,{id:sub.id,name:sub.name,done:false}]}:x));
     setNewSubName('');
   };
   const saveList=async()=>{
     if(!newListName.trim())return;
-    const body={name:newListName,icon:newListIcon,color:newListColor};
-    if(editListId){await fetch(`/api/lists/${editListId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});setLists(p=>p.map(l=>l.id===editListId?{...l,...body}:l));showToast('Updated');}
-    else{const res=await fetch('/api/lists',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const c=await res.json();setLists(p=>[...p,c]);showToast('Created');}
+    const body={name:newListName,icon:newList圖示,color:newList顏色};
+    if(editListId){await fetch(`/api/lists/${editListId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});setLists(p=>p.map(l=>l.id===editListId?{...l,...body}:l));showToast('清單已更新');}
+    else{const res=await fetch('/api/lists',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const c=await res.json();setLists(p=>[...p,c]);showToast('清單已建立');}
     setListSheetOpen(false);
   };
 
-  const detTask=tasks.find(t=>t.id===detailId);
-  const today=new Date();
-  const pinnedTasks=tasks.filter(t=>t.pinned&&t.status!=='done');
-  const todayTasks=tasks.filter(t=>{const d=t.dueDate==='today'?todayStr:t.dueDate;return d===todayStr;});
-  const activeTodayTasks=todayTasks.filter(t=>!t.pinned&&t.status!=='done');
-  const doneTodayTasks=todayTasks.filter(t=>t.status==='done');
-  const calDm=new Date(calYr,calMo+1,0).getDate();
-  const calFd=new Date(calYr,calMo,1).getDay();
-  const getTasksForDay=(yr:number,mo:number,day:number)=>{
+  const detTask=項任務.find(t=>t.id===detailId);
+  const today=new 時間();
+  const pinnedTasks=項任務.filter(t=>t.pinned&&t.status!=='done');
+  const todayTasks=項任務.filter(t=>{const d=t.due時間==='today'?todayStr:t.due時間;return d===todayStr;});
+  const active今天Tasks=todayTasks.filter(t=>!t.pinned&&t.status!=='done');
+  const done今天Tasks=todayTasks.filter(t=>t.status==='done');
+  const cal日m=new 時間(calYr,cal一+1,0).get時間();
+  const calFd=new 時間(calYr,cal一,1).get日ay();
+  const getTasksFor日ay=(yr:number,mo:number,day:number)=>{
     const ds=`${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    return tasks.filter(t=>{const d=t.dueDate==='today'?todayStr:t.dueDate;return d===ds;});
+    return 項任務.filter(t=>{const d=t.due時間==='today'?todayStr:t.due時間;return d===ds;});
   };
 
   const openPicker=(field:'date'|'list'|'pri',tid:string|null=null)=>{setPickerField(field);setPickerTid(tid);};
   const closePicker=()=>{setPickerField(null);setPickerTid(null);};
-  const setPDate=(v:string)=>{if(pickerTid)updateField(pickerTid,{dueDate:v||null});else setAddDue(v);closePicker();};
-  const setPList=(lid:string)=>{if(pickerTid)updateField(pickerTid,{listId:lid});else setAddLid(lid);closePicker();};
-  const setPPri=(p:Task['priority'])=>{if(pickerTid)updateField(pickerTid,{priority:p});else setAddPri(p);closePicker();};
+  const setP時間=(v:string)=>{if(pickerTid)updateField(pickerTid,{due時間:v||null});else set新增日ue(v);closePicker();};
+  const setPList=(lid:string)=>{if(pickerTid)updateField(pickerTid,{listId:lid});else set新增Lid(lid);closePicker();};
+  const setPPri=(p:Task['priority'])=>{if(pickerTid)updateField(pickerTid,{priority:p});else set新增Pri(p);closePicker();};
 
   const s = {
-    page:{minHeight:'100vh',background:'#F2F3F9',maxWidth:480,margin:'0 auto',position:'relative' as const,fontFamily:"'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif"},
+    page:{minHeight:'100vh',background:'#F2F3F9',maxWidth:480,margin:'0 auto',position:'relative' as const,fontFamily:"'日M 六ns',-apple-system,BlinkMacSystemFont,sans-serif"},
     hdr:{background:P,padding:'env(safe-area-inset-top,44px) 20px 16px',display:'flex',alignItems:'flex-end',justifyContent:'space-between',flexShrink:0 as const},
-    hdrDate:{fontSize:12,color:'rgba(255,255,255,.65)',marginBottom:2},
-    hdrTitle:{fontSize:28,fontWeight:700,color:'#fff',letterSpacing:'-.5px'},
+    hdr時間:{fontSize:12,color:'rgba(255,255,255,.65)',marginBottom:2},
+    hdrTitle:{fontSize:28,font三ight:700,color:'#fff',letterSpacing:'-.5px'},
     scroll:{flex:1,overflowY:'auto' as const,paddingBottom:120,paddingTop:10},
-    secLbl:{padding:'8px 16px 3px',fontSize:9.5,fontWeight:700,color:'#B0B8CC',letterSpacing:'.08em',textTransform:'uppercase' as const,display:'flex',alignItems:'center',gap:5},
-    pinDiv:{margin:'3px 16px 5px',display:'flex',alignItems:'center',gap:6},
+    secLbl:{padding:'8px 16px 3px',fontSize:9.5,font三ight:700,color:'#B0B8CC',letterSpacing:'.08em',textTransform:'uppercase' as const,display:'flex',alignItems:'center',gap:5},
+    pin日iv:{margin:'3px 16px 5px',display:'flex',alignItems:'center',gap:6},
     fab:{position:'fixed' as const,right:20,bottom:'calc(env(safe-area-inset-bottom,0px) + 96px)',width:52,height:52,borderRadius:'50%',background:P,boxShadow:'0 6px 20px rgba(123,107,224,.38)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:40},
     nav:{position:'fixed' as const,bottom:'calc(env(safe-area-inset-bottom,0px) + 16px)',left:'50%',transform:'translateX(-50%)',width:'calc(100% - 40px)',maxWidth:400,display:'flex',background:'rgba(255,255,255,.96)',backdropFilter:'blur(20px)',borderRadius:50,boxShadow:'0 8px 32px rgba(26,29,46,.14)',zIndex:50,padding:'6px 8px'},
-    overlay:{position:'fixed' as const,inset:0,maxWidth:480,margin:'0 auto',background:'rgba(26,29,46,.3)',zIndex:100,display:'flex',flexDirection:'column' as const,justifyContent:'flex-end'},
+    overlay:{position:'fixed' as const,inset:0,maxWidth:480,margin:'0 auto',background:'rgba(26,29,46,.3)',zIndex:100,display:'flex',flex日irection:'column' as const,justifyContent:'flex-end'},
     sheet:{background:'#fff',borderRadius:'16px 16px 0 0'},
     pkSheet:{background:'#fff',borderRadius:'16px 16px 0 0',maxHeight:'70vh',overflowY:'auto' as const},
     infoCard:{margin:'10px 14px 0',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'},
@@ -269,16 +269,16 @@ export default function App() {
 
   const Hdr=({title,sub,extra}:{title:string;sub?:string;extra?:React.ReactNode})=>(
     <div style={s.hdr}>
-      <div>{sub&&<div style={s.hdrDate}>{sub}</div>}<div style={s.hdrTitle}>{title}</div></div>
+      <div>{sub&&<div style={s.hdr時間}>{sub}</div>}<div style={s.hdrTitle}>{title}</div></div>
       {extra}
     </div>
   );
   const Nav=()=>(
     <div style={s.nav}>
       {(['today','all','lists','cal'] as Tab[]).map((t,i)=>(
-        <button key={t} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3,border:'none',cursor:'pointer',fontFamily:'inherit',borderRadius:40,padding:'8px 4px',transition:'all .15s',background:tab===t?'rgba(123,107,224,.12)':'transparent',color:tab===t?P:'#B0B8CC',fontSize:9,fontWeight:tab===t?700:500}} onClick={()=>setTab(t)}>
+        <button key={t} style={{flex:1,display:'flex',flex日irection:'column',alignItems:'center',gap:3,border:'none',cursor:'pointer',fontFamily:'inherit',borderRadius:40,padding:'8px 4px',transition:'all .15s',background:tab===t?'rgba(123,107,224,.12)':'transparent',color:tab===t?P:'#B0B8CC',fontSize:9,font三ight:tab===t?700:500}} onClick={()=>setTab(t)}>
           <Ico n={['sun','list','grid','calendar'][i]} size={tab===t?22:20} color={tab===t?P:'#B0B8CC'}/>
-          <span style={{fontSize:9,letterSpacing:tab===t?'.01em':'0'}}>{['Today','All','Lists','Calendar'][i]}</span>
+          <span style={{fontSize:9,letterSpacing:tab===t?'.01em':'0'}}>{['今天','全部','Lists','行事曆'][i]}</span>
         </button>
       ))}
     </div>
@@ -291,107 +291,107 @@ export default function App() {
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#F2F3F9'}}>
       <div style={{textAlign:'center'}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:P,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}><Ico n="check" size={24} color="white"/></div>
-        <p style={{fontSize:14,color:'#B0B8CC',fontFamily:"'DM Sans',-apple-system,sans-serif"}}>Loading...</p>
+        <p style={{fontSize:14,color:'#B0B8CC',fontFamily:"'日M 六ns',-apple-system,sans-serif"}}>載入中…</p>
       </div>
     </div>
   );
 
   return (
     <div style={s.page}>
-      {/* DETAIL */}
+      {/* 日ETAIL */}
       {detailId&&detTask&&(
-        <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',background:'#F2F3F9'}}>
+        <div style={{minHeight:'100vh',display:'flex',flex日irection:'column',background:'#F2F3F9'}}>
           <div style={{background:'#fff',paddingTop:'env(safe-area-inset-top,44px)',flexShrink:0,borderBottom:'.5px solid #ECEEF5'}}>
             <div style={{padding:'0 18px 12px'}}>
-              <button style={{display:'flex',alignItems:'center',gap:4,marginBottom:10,border:'none',background:'none',cursor:'pointer',padding:0}} onClick={()=>setDetailId(null)}>
-                <Ico n="arrow-left" size={18} color={P}/><span style={{fontSize:12,color:P,fontWeight:500}}>{prevTab==='today'?'Today':prevTab==='all'?'All':'Lists'}</span>
+              <button style={{display:'flex',alignItems:'center',gap:4,marginBottom:10,border:'none',background:'none',cursor:'pointer',padding:0}} onClick={()=>set日etailId(null)}>
+                <Ico n="arrow-left" size={18} color={P}/><span style={{fontSize:12,color:P,font三ight:500}}>{prevTab==='today'?'今天':prevTab==='all'?'全部':'Lists'}</span>
               </button>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
-                <button style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${detTask.status==='done'?'#C0BCCF':'#D0C8FF'}`,background:detTask.status==='done'?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={()=>toggleDone(detTask.id,detTask.subTasks.map(s=>s.id))}>
+                <button style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${detTask.status==='done'?'#C0BCCF':'#日0C8FF'}`,background:detTask.status==='done'?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={()=>toggle日one(detTask.id,detTask.subTasks.map(s=>s.id))}>
                   {detTask.status==='done'&&<Ico n="check" size={11} color="#E8EAF0"/>}
                 </button>
-                <h1 style={{fontSize:20,fontWeight:700,color:detTask.status==='done'?'#A8AEBB':'#1A1D2E',textDecoration:detTask.status==='done'?'line-through':'none',flex:1,lineHeight:1.3,margin:0}}>{detTask.name}</h1>
+                <h1 style={{fontSize:20,font三ight:700,color:detTask.status==='done'?'#A8AEBB':'#1A1日2E',text日ecoration:detTask.status==='done'?'line-through':'none',flex:1,lineHeight:1.3,margin:0}}>{detTask.name}</h1>
               </div>
             </div>
           </div>
           <div style={{flex:1,overflowY:'auto',paddingBottom:80,paddingTop:10}}>
             <div style={s.infoCard}>
-              {[{f:'pri' as const,icon:'flag',bg:'#FFF3DC',ic:'#F5C842',label:'Priority',val:<>{<span style={{display:'inline-block',width:7,height:7,borderRadius:'50%',background:PRI_DOT[detTask.priority],marginRight:5}}/>}{PRI_LABEL[detTask.priority]}</>},
-                {f:'date' as const,icon:'clock',bg:'#EBF3FF',ic:'#6B9EE0',label:'Date',val:detTask.dueDate?fmtDue(detTask.dueDate):<span style={{color:'#C8CCE0'}}>None</span>},
+              {[{f:'pri' as const,icon:'flag',bg:'#FFF3日C',ic:'#F5C842',label:'優先',val:<>{<span style={{display:'inline-block',width:7,height:7,borderRadius:'50%',background:PRI_日OT[detTask.priority],marginRight:5}}/>}{PRI_LABEL[detTask.priority]}</>},
+                {f:'date' as const,icon:'clock',bg:'#EBF3FF',ic:'#6B9EE0',label:'時間',val:detTask.due時間?fmt日ue(detTask.due時間):<span style={{color:'#C8CCE0'}}>None</span>},
                 {f:'list' as const,icon:'folder',bg:'rgba(123,107,224,.10)',ic:P,label:'Lists',val:lists.find(l=>l.id===detTask.listId)?.name||<span style={{color:'#C8CCE0'}}>Uncategorized</span>},
               ].map((row,i)=>(
                 <button key={i} style={{width:'100%',display:'flex',alignItems:'center',gap:9,padding:'10px 13px',borderBottom:i<2?'.5px solid #F2F3F9':'none',cursor:'pointer',background:'none',border:'none',textAlign:'left'}} onClick={()=>openPicker(row.f,detTask.id)}>
                   <div style={{width:20,height:20,borderRadius:6,background:row.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><Ico n={row.icon} size={12} color={row.ic}/></div>
                   <span style={{fontSize:10,color:'#B0B8CC',minWidth:26}}>{row.label}</span>
-                  <span style={{fontSize:12,color:'#1A1D2E',flex:1}}>{row.val}</span>
-                  <Ico n="chevron-right" size={12} color="#D0D4E0"/>
+                  <span style={{fontSize:12,color:'#1A1日2E',flex:1}}>{row.val}</span>
+                  <Ico n="chevron-right" size={12} color="#日0日4E0"/>
                 </button>
               ))}
             </div>
             <div style={{margin:'8px 14px 0',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
-              <div style={{padding:'7px 13px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase',borderBottom:'.5px solid #F2F3F9'}}>Notes</div>
-              <textarea style={{width:'100%',border:'none',outline:'none',fontSize:12,color:'#6B6F85',lineHeight:1.6,padding:'8px 13px 12px',background:'transparent',caretColor:P,minHeight:64,resize:'none',fontFamily:'inherit'}} placeholder='Add note...' value={detNotes} onChange={e=>setDetNotes(e.target.value)} onBlur={()=>updateField(detTask.id,{notes:detNotes})}/>
+              <div style={{padding:'7px 13px 3px',fontSize:9,font三ight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase',borderBottom:'.5px solid #F2F3F9'}}>備忘錄</div>
+              <textarea style={{width:'100%',border:'none',outline:'none',fontSize:12,color:'#6B6F85',lineHeight:1.6,padding:'8px 13px 12px',background:'transparent',caret顏色:P,minHeight:64,resize:'none',fontFamily:'inherit'}} placeholder='新增備忘錄…' value={det備忘錄} onChange={e=>set日et備忘錄(e.target.value)} onBlur={()=>updateField(detTask.id,{notes:det備忘錄})}/>
             </div>
             <div style={{margin:'8px 14px 0',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
               <div style={{padding:'7px 13px 3px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'.5px solid #F2F3F9'}}>
-                <span style={{fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>Subtasks</span>
-                <span style={{fontSize:10,fontWeight:600,color:P}}>{detTask.subTasks.filter(s=>s.done).length}/{detTask.subTasks.length}</span>
+                <span style={{fontSize:9,font三ight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>Sub項任務</span>
+                <span style={{fontSize:10,font三ight:600,color:P}}>{detTask.subTasks.filter(s=>s.done).length}/{detTask.subTasks.length}</span>
               </div>
               {detTask.subTasks.map(s=>(
                 <div key={s.id} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 13px',borderBottom:'.5px solid #F2F3F9',cursor:'pointer'}} onClick={()=>toggleSub(detTask.id,s.id)}>
-                  <div style={{width:15,height:15,borderRadius:'50%',border:`1.5px solid ${s.done?'#C0BCCF':'#D0C8FF'}`,background:s.done?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                  <div style={{width:15,height:15,borderRadius:'50%',border:`1.5px solid ${s.done?'#C0BCCF':'#日0C8FF'}`,background:s.done?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                     {s.done&&<Ico n="check" size={8} color="#E8EAF0"/>}
                   </div>
-                  <span style={{fontSize:12,flex:1,color:s.done?'#A8AEBB':'#1A1D2E',textDecoration:s.done?'line-through':'none'}}>{s.name}</span>
+                  <span style={{fontSize:12,flex:1,color:s.done?'#A8AEBB':'#1A1日2E',text日ecoration:s.done?'line-through':'none'}}>{s.name}</span>
                 </div>
               ))}
               <div style={{display:'flex',alignItems:'center',gap:9,padding:'9px 13px'}}>
                 <div style={{width:15,height:15,borderRadius:'50%',border:'1.5px solid #C8CCE0',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><Ico n="plus" size={10} color="#B0B8CC"/></div>
-                <input style={{flex:1,border:'none',outline:'none',fontSize:12,color:'#1A1D2E',background:'transparent',caretColor:P,fontFamily:'inherit'}} placeholder='Add subtask...' value={newSubName} onChange={e=>setNewSubName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')addSub();}}/>
-                {newSubName&&<button style={{fontSize:11,fontWeight:600,color:P,border:'none',background:'none',cursor:'pointer'}} onClick={addSub}>Add</button>}
+                <input style={{flex:1,border:'none',outline:'none',fontSize:12,color:'#1A1日2E',background:'transparent',caret顏色:P,fontFamily:'inherit'}} placeholder='新增子任務…' value={newSubName} onChange={e=>setNewSubName(e.target.value)} onKey日own={e=>{if(e.key==='Enter')addSub();}}/>
+                {newSubName&&<button style={{fontSize:11,font三ight:600,color:P,border:'none',background:'none',cursor:'pointer'}} onClick={addSub}>新增</button>}
               </div>
             </div>
           </div>
           <div style={{position:'fixed',bottom:0,left:'calc(50% - 240px)',right:'calc(50% - 240px)',padding:'12px 14px',paddingBottom:'calc(env(safe-area-inset-bottom,16px) + 12px)',background:'rgba(242,243,249,.92)',backdropFilter:'blur(12px)',display:'flex',gap:10}}>
-            <button style={{flex:1,height:42,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',background:'#F0F2F8',border:'.5px solid #E0E2EC',fontSize:12,fontWeight:500,color:P,fontFamily:'inherit'}} onClick={()=>setDetailId(null)}>
-              <Ico n="arrow-left" size={15} color={P}/>Back
+            <button style={{flex:1,height:42,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',background:'#F0F2F8',border:'.5px solid #E0E2EC',fontSize:12,font三ight:500,color:P,fontFamily:'inherit'}} onClick={()=>set日etailId(null)}>
+              <Ico n="arrow-left" size={15} color={P}/>返回
             </button>
-            <button style={{flex:2,height:42,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:6,cursor:'pointer',background:detTask.status==='done'?'#C0BCCF':P,boxShadow:detTask.status==='done'?'none':'0 4px 14px rgba(123,107,224,.32)',fontSize:12,fontWeight:700,color:'#fff',border:'none',fontFamily:'inherit'}} onClick={()=>toggleDone(detTask.id,detTask.subTasks.map(s=>s.id))}>
-              <Ico n={detTask.status==='done'?'rotate-ccw':'check'} size={15} color="white"/>{detTask.status==='done'?'Undo':'Complete'}
+            <button style={{flex:2,height:42,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:6,cursor:'pointer',background:detTask.status==='done'?'#C0BCCF':P,boxShadow:detTask.status==='done'?'none':'0 4px 14px rgba(123,107,224,.32)',fontSize:12,font三ight:700,color:'#fff',border:'none',fontFamily:'inherit'}} onClick={()=>toggle日one(detTask.id,detTask.subTasks.map(s=>s.id))}>
+              <Ico n={detTask.status==='done'?'rotate-ccw':'check'} size={15} color="white"/>{detTask.status==='done'?'復原':'標記完成'}
             </button>
           </div>
         </div>
       )}
 
-      {/* LIST DETAIL */}
+      {/* LIST 日ETAIL */}
       {ldId&&!detailId&&(()=>{
-        const sp:{[k:string]:{name:string;icon:string}}={__all__:{name:'All Tasks',icon:'checklist'},__imp__:{name:'Important',icon:'star'},__done__:{name:'Completed',icon:'check'}};
+        const sp:{[k:string]:{name:string;icon:string}}={__all__:{name:'所有任務',icon:'checklist'},__imp__:{name:'重要',icon:'star'},__done__:{name:'已完成',icon:'check'}};
         const isSpecial=ldId.startsWith('__');
         const info=isSpecial?sp[ldId]:{name:lists.find(l=>l.id===ldId)?.name||'',icon:lists.find(l=>l.id===ldId)?.icon?.replace('ti-','')||'folder'};
-        let lt=isSpecial?(ldId==='__all__'?tasks:ldId==='__imp__'?tasks.filter(t=>t.priority==='high'):tasks.filter(t=>t.status==='done')):tasks.filter(t=>t.listId===ldId);
-        if(ldFilter==='today')lt=lt.filter(t=>{const d=t.dueDate==='today'?todayStr:t.dueDate;return d===todayStr;});
+        let lt=isSpecial?(ldId==='__all__'?項任務:ldId==='__imp__'?項任務.filter(t=>t.priority==='high'):項任務.filter(t=>t.status==='done')):項任務.filter(t=>t.listId===ldId);
+        if(ldFilter==='today')lt=lt.filter(t=>{const d=t.due時間==='today'?todayStr:t.due時間;return d===todayStr;});
         else if(ldFilter==='hi')lt=lt.filter(t=>t.priority==='high');
         else if(ldFilter==='done')lt=lt.filter(t=>t.status==='done');
         return(
-          <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
+          <div style={{minHeight:'100vh',display:'flex',flex日irection:'column'}}>
             <div style={{background:P,paddingTop:'env(safe-area-inset-top,44px)',flexShrink:0}}>
               <div style={{padding:'0 18px 12px',display:'flex',alignItems:'center',gap:10}}>
                 <button style={{border:'none',background:'none',cursor:'pointer',padding:0}} onClick={()=>setLdId(null)}><Ico n="arrow-left" size={20} color="white"/></button>
                 <div style={{width:32,height:32,borderRadius:10,background:'rgba(255,255,255,.22)',display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={info.icon} size={16} color="white"/></div>
-                <div style={{flex:1}}><div style={{fontSize:11,color:'rgba(255,255,255,.65)'}}>{lt.filter(t=>t.status!=='done').length} tasks</div><div style={{fontSize:21,fontWeight:700,color:'#fff'}}>{info.name}</div></div>
+                <div style={{flex:1}}><div style={{fontSize:11,color:'rgba(255,255,255,.65)'}}>{lt.filter(t=>t.status!=='done').length} 項任務</div><div style={{fontSize:21,font三ight:700,color:'#fff'}}>{info.name}</div></div>
               </div>
               <div style={{display:'flex',gap:6,padding:'0 16px 10px',overflowX:'auto'}}>
                 {(['all','today','hi','done'] as const).map((f,i)=>(
-                  <button key={f} style={{flexShrink:0,padding:'4px 12px',borderRadius:20,fontSize:10.5,fontWeight:600,cursor:'pointer',border:'none',background:ldFilter===f?'white':'rgba(255,255,255,.2)',color:ldFilter===f?P:'rgba(255,255,255,.88)',fontFamily:'inherit'}} onClick={()=>setLdFilter(f)}>{['All','Today','Important','Done'][i]}</button>
+                  <button key={f} style={{flexShrink:0,padding:'4px 12px',borderRadius:20,fontSize:10.5,font三ight:600,cursor:'pointer',border:'none',background:ldFilter===f?'white':'rgba(255,255,255,.2)',color:ldFilter===f?P:'rgba(255,255,255,.88)',fontFamily:'inherit'}} onClick={()=>setLdFilter(f)}>{['全部','今天','重要','完成'][i]}</button>
                 ))}
               </div>
             </div>
             <div style={{flex:1,overflowY:'auto',paddingTop:10,paddingBottom:100,background:'#F2F3F9'}}>
-              {lt.filter(t=>t.status!=='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('lists');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-              {lt.filter(t=>t.status==='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('lists');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-              {lt.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>No tasks</div>}
+              {lt.filter(t=>t.status!=='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('lists');set日etailId(id);const tk=項任務.find(x=>x.id===id);set日et備忘錄(tk?.notes||'');}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
+              {lt.filter(t=>t.status==='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('lists');set日etailId(id);const tk=項任務.find(x=>x.id===id);set日et備忘錄(tk?.notes||'');}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
+              {lt.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>沒有任務</div>}
             </div>
-            <Fab onClick={()=>setAddOpen(true)}/>
+            <Fab onClick={()=>set新增Open(true)}/>
           </div>
         );
       })()}
@@ -400,119 +400,119 @@ export default function App() {
       {!detailId&&!ldId&&(
         <>
           {tab==='today'&&(
-            <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
-              <Hdr title="Today" sub={today.toLocaleDateString('zh-TW',{weekday:'long',month:'long',day:'numeric'})}/>
+            <div style={{minHeight:'100vh',display:'flex',flex日irection:'column'}}>
+              <Hdr title="今天" sub={today.toLocale時間String('zh-TW',{weekday:'long',month:'long',day:'numeric'})}/>
               <div style={s.scroll}>
-                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>Pinned<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('today');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
-                <div style={s.pinDiv}><div style={{flex:1,height:.5,background:'#D4D6E4'}}/><span style={{fontSize:9.5,color:'#B0B8CC',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:3}}><Ico n="list" size={9} color="#B0B8CC"/>Todaytask</span><div style={{flex:1,height:.5,background:'#D4D6E4'}}/></div>
-                {activeTodayTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('today');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-                {doneTodayTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('today');setDetailId(id);}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-                {todayTasks.length===0&&pinnedTasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>No tasks today</div>}
+                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>置頂<div style={{flex:1,height:.5,background:'#日C日EE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('today');set日etailId(id);const tk=項任務.find(x=>x.id===id);set日et備忘錄(tk?.notes||'');}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
+                <div style={s.pin日iv}><div style={{flex:1,height:.5,background:'#日4日6E4'}}/><span style={{fontSize:9.5,color:'#B0B8CC',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:3}}><Ico n="list" size={9} color="#B0B8CC"/>今天task</span><div style={{flex:1,height:.5,background:'#日4日6E4'}}/></div>
+                {active今天Tasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('today');set日etailId(id);const tk=項任務.find(x=>x.id===id);set日et備忘錄(tk?.notes||'');}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
+                {done今天Tasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('today');set日etailId(id);}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
+                {todayTasks.length===0&&pinnedTasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>今天沒有任務，點 + 新增</div>}
               </div>
             </div>
           )}
           {tab==='all'&&(
-            <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
-              <Hdr title="All" sub="Alltask"/>
+            <div style={{minHeight:'100vh',display:'flex',flex日irection:'column'}}>
+              <Hdr title="全部" sub="全部task"/>
               <div style={s.scroll}>
-                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>Pinned<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('all');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
-                {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...s.secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>t.status!=='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('all');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}{lt.filter(t=>t.status==='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('all');setDetailId(id);}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</div>);})}
-                {tasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>No tasks</div>}
+                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>置頂<div style={{flex:1,height:.5,background:'#日C日EE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('all');set日etailId(id);const tk=項任務.find(x=>x.id===id);set日et備忘錄(tk?.notes||'');}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
+                {lists.map(l=>{const lt=項任務.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...s.secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#日C日EE8'}}/></div>{lt.filter(t=>t.status!=='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('all');set日etailId(id);const tk=項任務.find(x=>x.id===id);set日et備忘錄(tk?.notes||'');}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}{lt.filter(t=>t.status==='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('all');set日etailId(id);}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</div>);})}
+                {項任務.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>沒有任務</div>}
               </div>
             </div>
           )}
           {tab==='lists'&&(
-            <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
-              <Hdr title="Lists" sub="ManageLists" extra={<button style={{width:34,height:34,borderRadius:'50%',background:'rgba(255,255,255,.18)',border:'1px solid rgba(255,255,255,.3)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',paddingBottom:2}} onClick={()=>{setEditListId(null);setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setListSheetOpen(true);}}><Ico n="plus" size={17} color="white"/></button>}/>
+            <div style={{minHeight:'100vh',display:'flex',flex日irection:'column'}}>
+              <Hdr title="Lists" sub="管理清單Lists" extra={<button style={{width:34,height:34,borderRadius:'50%',background:'rgba(255,255,255,.18)',border:'1px solid rgba(255,255,255,.3)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',paddingBottom:2}} onClick={()=>{setEditListId(null);setNewListName('');setNewList圖示('folder');setNewList顏色('#80日5B8');setListSheetOpen(true);}}><Ico n="plus" size={17} color="white"/></button>}/>
               <div style={s.scroll}>
                 <div style={{margin:'0 14px 4px',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
-                  {[{id:'__all__',icon:'checklist',bg:'rgba(123,107,224,.10)',ic:P,name:'All Tasks',cnt:tasks.filter(t=>t.status!=='done').length},{id:'__imp__',icon:'star',bg:'#FEE2E2',ic:'#E24B4A',name:'Important',cnt:tasks.filter(t=>t.priority==='high'&&t.status!=='done').length},{id:'__done__',icon:'check',bg:'#DCFCE7',ic:'#22C55E',name:'Completed',cnt:tasks.filter(t=>t.status==='done').length}].map(item=>(
+                  {[{id:'__all__',icon:'checklist',bg:'rgba(123,107,224,.10)',ic:P,name:'所有任務',cnt:項任務.filter(t=>t.status!=='done').length},{id:'__imp__',icon:'star',bg:'#FEE2E2',ic:'#E24B4A',name:'重要',cnt:項任務.filter(t=>t.priority==='high'&&t.status!=='done').length},{id:'__done__',icon:'check',bg:'#日CFCE7',ic:'#22C55E',name:'已完成',cnt:項任務.filter(t=>t.status==='done').length}].map(item=>(
                     <button key={item.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'.5px solid #F0F2F8',cursor:'pointer',background:'none',border:'none',textAlign:'left',fontFamily:'inherit'}} onClick={()=>{setLdId(item.id);setLdFilter('all');}}>
                       <div style={{width:27,height:27,borderRadius:9,background:item.bg,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={item.icon} size={14} color={item.ic}/></div>
-                      <span style={{flex:1,fontSize:13,fontWeight:500,color:'#1A1D2E'}}>{item.name}</span>
+                      <span style={{flex:1,fontSize:13,font三ight:500,color:'#1A1日2E'}}>{item.name}</span>
                       <span style={{fontSize:11,color:'#B0B8CC',background:'#F1F3F9',padding:'2px 8px',borderRadius:7}}>{item.cnt}</span>
-                      <Ico n="chevron-right" size={13} color="#C8CAD8"/>
+                      <Ico n="chevron-right" size={13} color="#C8CA日8"/>
                     </button>
                   ))}
                 </div>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 16px 5px'}}>
-                  <span style={{fontSize:10,fontWeight:700,color:'#B0B8CC',letterSpacing:'.08em',textTransform:'uppercase'}}>MyLists</span>
-                  <button style={{width:22,height:22,borderRadius:7,background:'rgba(123,107,224,.12)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',border:'none'}} onClick={()=>{setEditListId(null);setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setListSheetOpen(true);}}><Ico n="plus" size={13} color={P}/></button>
+                  <span style={{fontSize:10,font三ight:700,color:'#B0B8CC',letterSpacing:'.08em',textTransform:'uppercase'}}>MyLists</span>
+                  <button style={{width:22,height:22,borderRadius:7,background:'rgba(123,107,224,.12)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',border:'none'}} onClick={()=>{setEditListId(null);setNewListName('');setNewList圖示('folder');setNewList顏色('#80日5B8');setListSheetOpen(true);}}><Ico n="plus" size={13} color={P}/></button>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,padding:'0 14px'}}>
-                  {lists.map(l=><button key={l.id} style={{borderRadius:14,padding:'14px 12px',background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',cursor:'pointer',textAlign:'left',border:'none',fontFamily:'inherit'}} onClick={()=>{setLdId(l.id);setLdFilter('all');}} onContextMenu={e=>{e.preventDefault();setEditListId(l.id);setNewListName(l.name);setNewListIcon(l.icon?.replace('ti-','')||'folder');setNewListColor(l.color);setListSheetOpen(true);}}>
+                  {lists.map(l=><button key={l.id} style={{borderRadius:14,padding:'14px 12px',background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',cursor:'pointer',textAlign:'left',border:'none',fontFamily:'inherit'}} onClick={()=>{setLdId(l.id);setLdFilter('all');}} onContextMenu={e=>{e.prevent日efault();setEditListId(l.id);setNewListName(l.name);setNewList圖示(l.icon?.replace('ti-','')||'folder');setNewList顏色(l.color);setListSheetOpen(true);}}>
                     <div style={{width:30,height:30,borderRadius:9,background:l.color,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}><Ico n={l.icon?.replace('ti-','')||'folder'} size={15} color="white"/></div>
-                    <div style={{fontSize:12,fontWeight:700,color:'#1A1D2E'}}>{l.name}</div>
-                    <div style={{fontSize:10,color:'#B0B8CC',marginTop:2}}>{tasks.filter(t=>t.listId===l.id&&t.status!=='done').length} tasks</div>
+                    <div style={{fontSize:12,font三ight:700,color:'#1A1日2E'}}>{l.name}</div>
+                    <div style={{fontSize:10,color:'#B0B8CC',marginTop:2}}>{項任務.filter(t=>t.listId===l.id&&t.status!=='done').length} 項任務</div>
                   </button>)}
                   <button style={{gridColumn:'1/-1',borderRadius:14,display:'flex',alignItems:'center',gap:10,padding:'11px 14px',background:'#EAEBF0',cursor:'pointer',border:'none',textAlign:'left',fontFamily:'inherit'}} onClick={()=>{setLdId('__done__');setLdFilter('all');}}>
-                    <div style={{width:30,height:30,borderRadius:9,background:'#C8CCD8',display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n="check" size={15} color="white"/></div>
-                    <div><div style={{fontSize:12,fontWeight:700,color:'#8890A0'}}>Done</div><div style={{fontSize:10,color:'#B0B8CC'}}>{tasks.filter(t=>t.status==='done').length} items</div></div>
-                    <div style={{marginLeft:'auto'}}><Ico n="chevron-right" size={13} color="#C8CAD8"/></div>
+                    <div style={{width:30,height:30,borderRadius:9,background:'#C8CC日8',display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n="check" size={15} color="white"/></div>
+                    <div><div style={{fontSize:12,font三ight:700,color:'#8890A0'}}>日one</div><div style={{fontSize:10,color:'#B0B8CC'}}>{項任務.filter(t=>t.status==='done').length} 項</div></div>
+                    <div style={{marginLeft:'auto'}}><Ico n="chevron-right" size={13} color="#C8CA日8"/></div>
                   </button>
                 </div>
               </div>
             </div>
           )}
           {tab==='cal'&&(
-            <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
+            <div style={{minHeight:'100vh',display:'flex',flex日irection:'column'}}>
               <Hdr title="Calendar" sub="CalendarView"/>
               <div style={s.scroll}>
                 <div style={{margin:'0 14px 10px',background:'#fff',borderRadius:14,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 14px 8px'}}>
-                    <span style={{fontSize:14,fontWeight:700,color:'#1A1D2E'}}>{calYr}Y {calMo+1}M</span>
+                    <span style={{fontSize:14,font三ight:700,color:'#1A1日2E'}}>{calYr}Y {cal一+1}M</span>
                     <div style={{display:'flex',gap:3}}>
-                      <button style={{width:26,height:26,borderRadius:8,background:'#F1F3F9',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{let m=calMo-1,y=calYr;if(m<0){m=11;y--;}setCalMo(m);setCalYr(y);}}><Ico n="chevron-left" size={13} color="#9CA4BC"/></button>
-                      <button style={{width:26,height:26,borderRadius:8,background:'#F1F3F9',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{let m=calMo+1,y=calYr;if(m>11){m=0;y++;}setCalMo(m);setCalYr(y);}}><Ico n="chevron-right" size={13} color="#9CA4BC"/></button>
+                      <button style={{width:26,height:26,borderRadius:8,background:'#F1F3F9',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{let m=cal一-1,y=calYr;if(m<0){m=11;y--;}setCal一(m);setCalYr(y);}}><Ico n="chevron-left" size={13} color="#9CA4BC"/></button>
+                      <button style={{width:26,height:26,borderRadius:8,background:'#F1F3F9',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{let m=cal一+1,y=calYr;if(m>11){m=0;y++;}setCal一(m);setCalYr(y);}}><Ico n="chevron-right" size={13} color="#9CA4BC"/></button>
                     </div>
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',padding:'0 8px'}}>
-                    {['D','Mo','Tu','We','Th','Fr','Sa'].map(d=><div key={d} style={{textAlign:'center',fontSize:9,fontWeight:700,color:'#B0B8CC',padding:'2px 0'}}>{d}</div>)}
+                    {['日','一','二','三','四','五','六'].map(d=><div key={d} style={{textAlign:'center',fontSize:9,font三ight:700,color:'#B0B8CC',padding:'2px 0'}}>{d}</div>)}
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:1,padding:'2px 8px 10px'}}>
-                    {Array.from({length:calFd}).map((_,i)=>{const d=new Date(calYr,calMo,0).getDate()-calFd+i+1;return<div key={`p${i}`} style={{display:'flex',flexDirection:'column',alignItems:'center',padding:'2px 1px'}}><span style={{fontSize:11,color:'#C4C8DC'}}>{d}</span></div>;})}
-                    {Array.from({length:calDm}).map((_,i)=>{
-                      const d=i+1,isT=(d===today.getDate()&&calMo===today.getMonth()&&calYr===today.getFullYear()),isSel=d===calSel&&!isT;
-                      const dt=getTasksForDay(calYr,calMo+1,d);
-                      const dots=[...new Set(dt.slice(0,3).map(t=>lists.find(l=>l.id===t.listId)?.color||'#C8CCD8'))];
-                      return<button key={d} style={{display:'flex',flexDirection:'column',alignItems:'center',padding:'2px 1px',borderRadius:7,minHeight:28,border:'none',cursor:'pointer',background:isT?P:isSel?'rgba(123,107,224,.12)':'transparent',fontFamily:'inherit'}} onClick={()=>setCalSel(d)}>
-                        <span style={{fontSize:11,color:isT?'white':isSel?'#6B5EE0':'#1A1D2E',fontWeight:isT||isSel?700:400}}>{d}</span>
+                    {Array.from({length:calFd}).map((_,i)=>{const d=new 時間(calYr,cal一,0).get時間()-calFd+i+1;return<div key={`p${i}`} style={{display:'flex',flex日irection:'column',alignItems:'center',padding:'2px 1px'}}><span style={{fontSize:11,color:'#C4C8日C'}}>{d}</span></div>;})}
+                    {Array.from({length:cal日m}).map((_,i)=>{
+                      const d=i+1,isT=(d===today.get時間()&&cal一===today.get一nth()&&calYr===today.getFullYear()),isSel=d===calSel&&!isT;
+                      const dt=getTasksFor日ay(calYr,cal一+1,d);
+                      const dots=[...new Set(dt.slice(0,3).map(t=>lists.find(l=>l.id===t.listId)?.color||'#C8CC日8'))];
+                      return<button key={d} style={{display:'flex',flex日irection:'column',alignItems:'center',padding:'2px 1px',borderRadius:7,minHeight:28,border:'none',cursor:'pointer',background:isT?P:isSel?'rgba(123,107,224,.12)':'transparent',fontFamily:'inherit'}} onClick={()=>setCalSel(d)}>
+                        <span style={{fontSize:11,color:isT?'white':isSel?'#6B5EE0':'#1A1日2E',font三ight:isT||isSel?700:400}}>{d}</span>
                         {dots.length>0&&<div style={{display:'flex',gap:2,marginTop:2}}>{dots.map((c,ci)=><div key={ci} style={{width:3,height:3,borderRadius:'50%',background:isT?'rgba(255,255,255,.8)':c}}/>)}</div>}
                       </button>;
                     })}
                   </div>
                 </div>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 14px 8px'}}>
-                  <span style={{fontSize:11,fontWeight:700,color:'#6B5EE0',background:'rgba(123,107,224,.10)',padding:'3px 10px',borderRadius:8}}>{calMo+1}M {calSel}D</span>
-                  <button style={{width:26,height:26,borderRadius:8,background:'rgba(123,107,224,.10)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{const ds=`${calYr}-${String(calMo+1).padStart(2,'0')}-${String(calSel).padStart(2,'0')}`;setAddDue(ds===todayStr?'today':ds);setAddLid('');setAddPri('none');setAddOpen(true);}}><Ico n="plus" size={14} color={P}/></button>
+                  <span style={{fontSize:11,font三ight:700,color:'#6B5EE0',background:'rgba(123,107,224,.10)',padding:'3px 10px',borderRadius:8}}>{cal一+1}M {calSel}日</span>
+                  <button style={{width:26,height:26,borderRadius:8,background:'rgba(123,107,224,.10)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{const ds=`${calYr}-${String(cal一+1).padStart(2,'0')}-${String(calSel).padStart(2,'0')}`;set新增日ue(ds===todayStr?'today':ds);set新增Lid('');set新增Pri('none');set新增Open(true);}}><Ico n="plus" size={14} color={P}/></button>
                 </div>
-                {getTasksForDay(calYr,calMo+1,calSel).map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('cal');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-                {getTasksForDay(calYr,calMo+1,calSel).length===0&&<div style={{textAlign:'center',padding:'20px',color:'#B0B8CC',fontSize:13}}>No tasks</div>}
+                {getTasksFor日ay(calYr,cal一+1,calSel).map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggle日one} onOpen={id=>{setPrevTab('cal');set日etailId(id);const tk=項任務.find(x=>x.id===id);set日et備忘錄(tk?.notes||'');}} on日elete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
+                {getTasksFor日ay(calYr,cal一+1,calSel).length===0&&<div style={{textAlign:'center',padding:'20px',color:'#B0B8CC',fontSize:13}}>沒有任務</div>}
               </div>
             </div>
           )}
-          <Fab onClick={()=>setAddOpen(true)}/>
+          <Fab onClick={()=>set新增Open(true)}/>
           <Nav/>
         </>
       )}
 
-      {/* ADD TASK */}
+      {/* A日日 TASK */}
       {addOpen&&(
-        <div style={s.overlay} onClick={e=>{if(e.target===e.currentTarget){setAddOpen(false);setAddName('');}}}>
+        <div style={s.overlay} onClick={e=>{if(e.target===e.currentTarget){set新增Open(false);set新增Name('');}}}>
           <div style={s.sheet} onClick={e=>e.stopPropagation()}>
             <div style={{padding:'14px 16px 5px'}}>
-              <input autoFocus style={{width:'100%',border:'none',outline:'none',fontSize:15,fontWeight:500,color:'#1A1D2E',caretColor:P,background:'transparent',fontFamily:'inherit'}} placeholder='Add task...' value={addName} onChange={e=>setAddName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&submitTask()}/>
+              <input autoFocus style={{width:'100%',border:'none',outline:'none',fontSize:15,font三ight:500,color:'#1A1日2E',caret顏色:P,background:'transparent',fontFamily:'inherit'}} placeholder='新增任務…' value={addName} onChange={e=>set新增Name(e.target.value)} onKey日own={e=>e.key==='Enter'&&submitTask()}/>
             </div>
             <div style={{display:'flex',alignItems:'center',padding:'3px 12px 10px',height:38}}>
-              {[{f:'date' as const,icon:'clock',active:!!addDue,label:fmtDue(addDue)},{f:'list' as const,icon:'grid',active:!!addLid,label:lists.find(l=>l.id===addLid)?.name||''},{f:'pri' as const,icon:'flag',active:addPri!=='none',label:''}].map(btn=>(
+              {[{f:'date' as const,icon:'clock',active:!!add日ue,label:fmt日ue(add日ue)},{f:'list' as const,icon:'grid',active:!!addLid,label:lists.find(l=>l.id===addLid)?.name||''},{f:'pri' as const,icon:'flag',active:addPri!=='none',label:''}].map(btn=>(
                 <button key={btn.f} style={{display:'flex',alignItems:'center',gap:3,padding:'0 7px',height:24,borderRadius:7,cursor:'pointer',border:'none',background:'none',flexShrink:0}} onClick={()=>openPicker(btn.f,null)}>
                   <Ico n={btn.icon} size={17} color={btn.active?P:'#9CA4BC'}/>
-                  {btn.active&&btn.label&&<span style={{fontSize:9.5,color:'#6B5EE0',fontWeight:600,background:'rgba(123,107,224,.10)',padding:'1px 6px',borderRadius:5}}>{btn.label}</span>}
+                  {btn.active&&btn.label&&<span style={{fontSize:9.5,color:'#6B5EE0',font三ight:600,background:'rgba(123,107,224,.10)',padding:'1px 6px',borderRadius:5}}>{btn.label}</span>}
                   {btn.f==='pri'&&addPri!=='none'&&<div style={{width:8,height:8,borderRadius:'50%',background:PRI_BAR[addPri],flexShrink:0}}/>}
                 </button>
               ))}
               <div style={{flex:1}}/>
-              <button style={{height:24,padding:'0 12px',background:P,borderRadius:8,fontSize:10.5,fontWeight:700,color:'#fff',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={submitTask}>Add</button>
+              <button style={{height:24,padding:'0 12px',background:P,borderRadius:8,fontSize:10.5,font三ight:700,color:'#fff',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={submitTask}>新增</button>
             </div>
             <div style={{height:'env(safe-area-inset-bottom,0px)'}}/>
           </div>
@@ -523,49 +523,49 @@ export default function App() {
       {pickerField&&(
         <div style={s.overlay} onClick={e=>{if(e.target===e.currentTarget)closePicker();}}>
           <div style={s.pkSheet} onClick={e=>e.stopPropagation()}>
-            <div style={{width:28,height:3,borderRadius:2,background:'#D8DAE8',margin:'7px auto 10px'}}/>
+            <div style={{width:28,height:3,borderRadius:2,background:'#日8日AE8',margin:'7px auto 10px'}}/>
             {pickerField==='date'&&(()=>{
-              const curDue=pickerTid?tasks.find(t=>t.id===pickerTid)?.dueDate||'':addDue;
-              const now=new Date();
+              const cur日ue=pickerTid?項任務.find(t=>t.id===pickerTid)?.due時間||'':add日ue;
+              const now=new 時間();
               return(<>
-                <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>SelectDate</div>
+                <div style={{fontSize:13,font三ight:700,color:'#1A1日2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>Select時間</div>
                 <div style={{display:'flex',gap:7,flexWrap:'wrap' as const,padding:'12px 14px',borderBottom:'.5px solid #F2F3F9'}}>
-                  {[['today','Today'],['tomorrow','Tomorrow'],['','Clear']].map(([v,l])=>(
-                    <button key={v} style={{padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:600,cursor:'pointer',border:`1.5px solid ${curDue===v?P:'#E8EAF0'}`,background:curDue===v?P:'white',color:curDue===v?'white':'#6B6F85',fontFamily:'inherit'}} onClick={()=>setPDate(v)}>{l}</button>
+                  {[['today','今天'],['tomorrow','明天'],['','清除']].map(([v,l])=>(
+                    <button key={v} style={{padding:'6px 14px',borderRadius:20,fontSize:11,font三ight:600,cursor:'pointer',border:`1.5px solid ${cur日ue===v?P:'#E8EAF0'}`,background:cur日ue===v?P:'white',color:cur日ue===v?'white':'#6B6F85',fontFamily:'inherit'}} onClick={()=>setP時間(v)}>{l}</button>
                   ))}
                 </div>
                 <div style={{padding:'12px 14px',display:'flex',gap:10}}>
-                  {[{id:'mo',label:'M',opts:Array.from({length:12},(_,i)=>({v:i+1,l:`${i+1}M`})),def:now.getMonth()+1},{id:'day',label:'D',opts:Array.from({length:31},(_,i)=>({v:i+1,l:`${i+1}`})),def:now.getDate()}].map(col=>(
-                    <div key={col.id} style={{flex:1,display:'flex',flexDirection:'column',gap:4}}>
-                      <label style={{fontSize:10,fontWeight:600,color:'#B0B8CC',textAlign:'center'}}>{col.label}</label>
-                      <select id={`pk-${col.id}`} defaultValue={col.def} style={{width:'100%',border:'.5px solid #D0C8FF',borderRadius:10,padding:'8px 6px',fontSize:14,fontWeight:600,color:'#1A1D2E',textAlign:'center',outline:'none',fontFamily:'inherit'}}>
+                  {[{id:'mo',label:'M',opts:Array.from({length:12},(_,i)=>({v:i+1,l:`${i+1}M`})),def:now.get一nth()+1},{id:'day',label:'日',opts:Array.from({length:31},(_,i)=>({v:i+1,l:`${i+1}`})),def:now.get時間()}].map(col=>(
+                    <div key={col.id} style={{flex:1,display:'flex',flex日irection:'column',gap:4}}>
+                      <label style={{fontSize:10,font三ight:600,color:'#B0B8CC',textAlign:'center'}}>{col.label}</label>
+                      <select id={`pk-${col.id}`} defaultValue={col.def} style={{width:'100%',border:'.5px solid #日0C8FF',borderRadius:10,padding:'8px 6px',fontSize:14,font三ight:600,color:'#1A1日2E',textAlign:'center',outline:'none',fontFamily:'inherit'}}>
                         {col.opts.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
                       </select>
                     </div>
                   ))}
                 </div>
-                <button style={{margin:'2px 14px 14px',height:40,width:'calc(100% - 28px)',background:P,borderRadius:11,fontSize:13,fontWeight:700,color:'white',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>{const mo=String((document.getElementById('pk-mo') as HTMLSelectElement).value).padStart(2,'0');const day=String((document.getElementById('pk-day') as HTMLSelectElement).value).padStart(2,'0');const ds=`${now.getFullYear()}-${mo}-${day}`;setPDate(ds===todayStr?'today':ds);}}>OK</button>
+                <button style={{margin:'2px 14px 14px',height:40,width:'calc(100% - 28px)',background:P,borderRadius:11,fontSize:13,font三ight:700,color:'white',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>{const mo=String((document.getElementById('pk-mo') as HTMLSelectElement).value).padStart(2,'0');const day=String((document.getElementById('pk-day') as HTMLSelectElement).value).padStart(2,'0');const ds=`${now.getFullYear()}-${mo}-${day}`;setP時間(ds===todayStr?'today':ds);}}>確定</button>
               </>);
             })()}
             {pickerField==='list'&&(<>
-              <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>SelectLists</div>
-              {lists.map(l=>{const cur=pickerTid?tasks.find(t=>t.id===pickerTid)?.listId:addLid;return(
+              <div style={{fontSize:13,font三ight:700,color:'#1A1日2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>SelectLists</div>
+              {lists.map(l=>{const cur=pickerTid?項任務.find(t=>t.id===pickerTid)?.listId:addLid;return(
                 <button key={l.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'.5px solid #F2F3F9',cursor:'pointer',background:'none',border:'none',textAlign:'left',fontFamily:'inherit'}} onClick={()=>setPList(l.id)}>
                   <div style={{width:22,height:22,borderRadius:7,background:l.color,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={l.icon?.replace('ti-','')||'folder'} size={12} color="white"/></div>
-                  <span style={{flex:1,fontSize:13,fontWeight:500,color:'#1A1D2E'}}>{l.name}</span>
+                  <span style={{flex:1,fontSize:13,font三ight:500,color:'#1A1日2E'}}>{l.name}</span>
                   {cur===l.id&&<div style={{width:16,height:16,borderRadius:'50%',background:P,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n="check" size={8} color="white"/></div>}
                 </button>
               );})}
               <div style={{height:'env(safe-area-inset-bottom,10px)'}}/>
             </>)}
             {pickerField==='pri'&&(<>
-              <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>SelectPriority</div>
-              <div style={{padding:'12px 14px 16px',display:'flex',flexDirection:'column',gap:8}}>
-                {([['high','High',PRI_DOT.high],['medium','Medium',PRI_DOT.medium],['low','Low',PRI_DOT.low],['none','None','#DDDFE8']] as [Task['priority'],string,string][]).map(([v,n,c])=>{
-                  const cur=pickerTid?tasks.find(t=>t.id===pickerTid)?.priority:addPri;
+              <div style={{fontSize:13,font三ight:700,color:'#1A1日2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>Select優先</div>
+              <div style={{padding:'12px 14px 16px',display:'flex',flex日irection:'column',gap:8}}>
+                {([['high','高優先',PRI_日OT.high],['medium','中優先',PRI_日OT.medium],['low','低優先',PRI_日OT.low],['none','未設定','#日日日FE8']] as [Task['priority'],string,string][]).map(([v,n,c])=>{
+                  const cur=pickerTid?項任務.find(t=>t.id===pickerTid)?.priority:addPri;
                   return(<button key={v} style={{display:'flex',alignItems:'center',gap:12,padding:'11px 13px',borderRadius:11,cursor:'pointer',border:`${cur===v?2:1.5}px solid ${cur===v?P:'#F0F2F8'}`,background:cur===v?'rgba(123,107,224,.04)':'white',textAlign:'left',fontFamily:'inherit'}} onClick={()=>setPPri(v)}>
                     <div style={{width:18,height:18,borderRadius:'50%',background:c,border:v==='none'?'1.5px solid #C8CCE0':'none',flexShrink:0}}/>
-                    <span style={{flex:1,fontSize:13,fontWeight:500,color:'#1A1D2E'}}>{n}</span>
+                    <span style={{flex:1,fontSize:13,font三ight:500,color:'#1A1日2E'}}>{n}</span>
                     {cur===v&&<div style={{width:16,height:16,borderRadius:'50%',background:P,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n="check" size={8} color="white"/></div>}
                   </button>);
                 })}
@@ -576,27 +576,27 @@ export default function App() {
         </div>
       )}
 
-      {/* LIST EDITOR */}
+      {/* LIST E日ITOR */}
       {listSheetOpen&&(
         <div style={s.overlay} onClick={e=>{if(e.target===e.currentTarget)setListSheetOpen(false);}}>
           <div style={s.sheet} onClick={e=>e.stopPropagation()}>
-            <div style={{width:28,height:3,borderRadius:2,background:'#D8DAE8',margin:'7px auto 10px'}}/>
+            <div style={{width:28,height:3,borderRadius:2,background:'#日8日AE8',margin:'7px auto 10px'}}/>
             <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 14px 10px',borderBottom:'.5px solid #F2F3F9'}}>
-              <div style={{width:36,height:36,borderRadius:11,background:newListColor,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={newListIcon} size={16} color="white"/></div>
-              <input autoFocus style={{flex:1,border:'none',outline:'none',fontSize:14,fontWeight:700,color:'#1A1D2E',caretColor:P,background:'transparent',fontFamily:'inherit'}} placeholder='List name...' value={newListName} onChange={e=>setNewListName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&saveList()}/>
+              <div style={{width:36,height:36,borderRadius:11,background:newList顏色,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={newList圖示} size={16} color="white"/></div>
+              <input autoFocus style={{flex:1,border:'none',outline:'none',fontSize:14,font三ight:700,color:'#1A1日2E',caret顏色:P,background:'transparent',fontFamily:'inherit'}} placeholder='清單名稱…' value={newListName} onChange={e=>setNewListName(e.target.value)} onKey日own={e=>e.key==='Enter'&&saveList()}/>
               <Ico n="pencil" size={14} color="#B0B8CC"/>
             </div>
-            <div style={{padding:'7px 14px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>Icon</div>
+            <div style={{padding:'7px 14px 3px',fontSize:9,font三ight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>圖示</div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:5,padding:'3px 14px 9px'}}>
-              {ICONS.map(ic=><button key={ic} style={{height:34,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',border:`${newListIcon===ic?'2px solid #1A1D2E':'1.5px solid transparent'}`,background:newListIcon===ic?newListColor:'#F1F3F9'}} onClick={()=>setNewListIcon(ic)}><Ico n={ic} size={15} color={newListIcon===ic?'white':'#8890A8'}/></button>)}
+              {ICONS.map(ic=><button key={ic} style={{height:34,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',border:`${newList圖示===ic?'2px solid #1A1日2E':'1.5px solid transparent'}`,background:newList圖示===ic?newList顏色:'#F1F3F9'}} onClick={()=>setNewList圖示(ic)}><Ico n={ic} size={15} color={newList圖示===ic?'white':'#8890A8'}/></button>)}
             </div>
-            <div style={{padding:'2px 14px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>Color</div>
+            <div style={{padding:'2px 14px 3px',fontSize:9,font三ight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>顏色</div>
             <div style={{display:'flex',gap:9,padding:'3px 14px 10px',overflowX:'auto'}}>
-              {COLORS.map(c=><button key={c} style={{width:28,height:28,borderRadius:'50%',flexShrink:0,cursor:'pointer',border:`${newListColor===c?'3px solid #1A1D2E':'3px solid transparent'}`,background:c,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setNewListColor(c)}>{newListColor===c&&<Ico n="check" size={12} color="white"/>}</button>)}
+              {COLORS.map(c=><button key={c} style={{width:28,height:28,borderRadius:'50%',flexShrink:0,cursor:'pointer',border:`${newList顏色===c?'3px solid #1A1日2E':'3px solid transparent'}`,background:c,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setNewList顏色(c)}>{newList顏色===c&&<Ico n="check" size={12} color="white"/>}</button>)}
             </div>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 14px 6px',borderTop:'.5px solid #F2F3F9',paddingBottom:'calc(env(safe-area-inset-bottom,6px) + 8px)'}}>
-              <button style={{fontSize:12,color:'#B0B8CC',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>setListSheetOpen(false)}>Cancel</button>
-              <button style={{display:'flex',alignItems:'center',gap:3,fontSize:12,fontWeight:700,color:P,border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={saveList}><Ico n="check" size={14} color={P}/>Save</button>
+              <button style={{fontSize:12,color:'#B0B8CC',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>setListSheetOpen(false)}>取消</button>
+              <button style={{display:'flex',alignItems:'center',gap:3,fontSize:12,font三ight:700,color:P,border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={saveList}><Ico n="check" size={14} color={P}/>儲存</button>
             </div>
           </div>
         </div>
@@ -607,7 +607,7 @@ export default function App() {
         <div style={{position:'fixed',bottom:80,left:'calc(50% - 225px + 14px)',right:'calc(50% - 225px + 14px)',background:'rgba(26,29,46,.9)',color:'#fff',borderRadius:13,padding:'12px 16px',display:'flex',alignItems:'center',gap:9,fontSize:13,zIndex:200,backdropFilter:'blur(8px)'}}>
           <Ico n="check-circle" size={16} color="#C4B8FF"/>
           <span style={{flex:1}}>{toast}</span>
-          <button style={{fontSize:12,fontWeight:600,color:'#C4B8FF',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={undoLast}>Undo</button>
+          <button style={{fontSize:12,font三ight:600,color:'#C4B8FF',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={undoLast}>復原</button>
         </div>
       )}
     </div>
