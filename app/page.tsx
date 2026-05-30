@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Task, TodoList } from '@/types';
 
 const PRI_BAR: Record<string,string> = { high:'#E8706A', medium:'#F5C842', low:'#72C48A', none:'transparent' };
-const PRI_LABEL: Record<string,string> = { high:'擃??, medium:'銝剖??, low:'雿??, none:'?芾身摰? };
+const PRI_LABEL: Record<string,string> = { high:'高優先', medium:'中優先', low:'低優先', none:'未設定' };
 const PRI_DOT: Record<string,string> = { high:'#E8706A', medium:'#F5C842', low:'#72C48A', none:'#DDDFE8' };
 const ICONS = ['briefcase','home','folder','heart','star','book','dumbbell','shopping-cart','plane','banknote'];
 const COLORS = ['#F0A8A0','#F5D080','#80D5B8','#B8AEFF','#7B6BE0','#7BB8E8','#E8706A','#C8CCD8'];
