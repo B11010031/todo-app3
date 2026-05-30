@@ -227,10 +227,10 @@ export default function App() {
   const saveList=async()=>{
     if(!newListName.trim())return;
     const body={name:newListName,icon:newListIcon,color:newListColor};
-    if(editListId){await fetch(/api/lists/+editListId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});setLists(p=>p.map(l=>l.id===editListId?{...l,...body}:l));showToast('清單已更新');}else{const res=await fetch('/api/lists',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const c=await res.json();setLists(p=>[...p,c]);showToast('清單已建立');}setListSheetOpen(false);
+    if(editListId){await fetch('/api/lists/'+editListId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});setLists(p=>p.map(l=>l.id===editListId?{...l,...body}:l));showToast('清單已更新');}else{const res=await fetch('/api/lists',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const c=await res.json();setLists(p=>[...p,c]);showToast('清單已建立');}setListSheetOpen(false);
   };
-    setListSheetOpen(false);
-  };
+
+
 
   const detTask=tasks.find(t=>t.id===detailId);
   const today=new Date();
