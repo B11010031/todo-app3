@@ -193,7 +193,7 @@ export default function App() {
     const t=tasks.find(x=>x.id===id);if(!t)return;
     setTasks(p=>p.map(x=>x.id===id?{...x,pinned:!x.pinned}:x));
     await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pinned:!t.pinned})});
-    showToast(t.pinned?'撌脣?瘨蔭??:'撌脩蔭??);
+    showToast(t.pinned?'已置頂':'已取消置頂');
   };
   const undoLast=()=>{
     if(!lastUndo)return;
