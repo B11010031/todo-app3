@@ -1,4 +1,4 @@
-import { Client } from '@notionhq/client';
+﻿import { Client } from '@notionhq/client';
 import { Task, TodoList } from '@/types';
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -12,14 +12,29 @@ function getDate(prop: any): string | null { return prop?.date?.start || null; }
 function getCheck(prop: any): boolean { return prop?.checkbox || false; }
 function getRelationId(prop: any): string | null { return prop?.relation?.[0]?.id || null; }
 
-// ── LISTS ──
+const COLOR_MAP: Record<string, string> = {
+  coral: '#F0A8A0', amber: '#F5D080', teal: '#80D5B8', purple: '#B8AEFF',
+  indigo: '#7B6BE0', blue: '#7BB8E8', red: '#E8706A', gray: '#C8CCD8',
+  '#F0A8A0': '#F0A8A0', '#F5D080': '#F5D080', '#80D5B8': '#80D5B8',
+  '#B8AEFF': '#B8AEFF', '#7B6BE0': '#7B6BE0', '#7BB8E8': '#7BB8E8',
+  '#E8706A': '#E8706A', '#C8CCD8': '#C8CCD8',
+};
+const ICON_MAP: Record<string, string> = {
+  briefcase: 'briefcase', home: 'home', folder: 'folder', heart: 'heart',
+  star: 'star', book: 'book', dumbbell: 'dumbbell', cart: 'shopping-cart',
+  'shopping-cart': 'shopping-cart', plane: 'plane', cash: 'banknote', banknote: 'banknote',
+};
+
+function resolveColor(val: string): string { return COLOR_MAP[val] || val || '#B8AEFF'; }
+function resolveIcon(val: string): string { return ICON_MAP[val] || val || 'folder'; }
+
 export async function getLists(): Promise<TodoList[]> {
   const res = await notion.databases.query({ database_id: LISTS_DB });
   return res.results.map((p: any) => ({
     id: p.id,
     name: getText(getProp(p, 'Name')),
-    icon: getSelect(getProp(p, 'Icon')) || 'folder',
-    color: getSelect(getProp(p, 'Color')) || '#B8AEFF',
+    icon: resolveIcon(getSelect(getProp(p, 'Icon'))),
+    color: resolveColor(getSelect(getProp(p, 'Color'))),
   }));
 }
 
@@ -32,14 +47,14 @@ export async function createList(data: { name: string; icon: string; color: stri
       Color: { select: { name: data.color } },
     },
   }) as any;
-  return { id: page.id, name: data.name, icon: data.icon, color: data.color };
+  return { id: page.id, name: data.name, icon: resolveIcon(data.icon), color: resolveColor(data.color) };
 }
 
 export async function updateList(id: string, data: Partial<{ name: string; icon: string; color: string }>) {
   const props: any = {};
-  if (data.name) props.Name = { title: [{ text: { content: data.name } }] };
-  if (data.icon) props.Icon = { select: { name: data.icon } };
-  if (data.color) props.Color = { select: { name: data.color } };
+  if (data.name !== undefined) props.Name = { title: [{ text: { content: data.name } }] };
+  if (data.icon !== undefined) props.Icon = { select: { name: data.icon } };
+  if (data.color !== undefined) props.Color = { select: { name: data.color } };
   await notion.pages.update({ page_id: id, properties: props });
 }
 
@@ -47,15 +62,15 @@ export async function deleteList(id: string) {
   await notion.pages.update({ page_id: id, archived: true });
 }
 
-// ── TASKS ──
 function mapTask(p: any, listsMap: Map<string, TodoList>): Task {
   const listId = getRelationId(getProp(p, 'List')) || '';
   const list = listsMap.get(listId);
+  const priority = getSelect(getProp(p, 'Priority')) as Task['priority'];
   return {
     id: p.id,
     name: getText(getProp(p, 'Name')),
     status: (getSelect(getProp(p, 'Status')) as 'todo' | 'done') || 'todo',
-    priority: (getSelect(getProp(p, 'Priority')) as Task['priority']) || 'none',
+    priority: (['high','medium','low','none'].includes(priority) ? priority : 'none') as Task['priority'],
     listId,
     listName: list?.name || '',
     listColor: list?.color || '#B8AEFF',
@@ -79,19 +94,12 @@ export async function getTasks(): Promise<Task[]> {
       ],
     }),
   ]);
-
   const listsMap = new Map<string, TodoList>(
     listsRes.results.map((p: any) => [
       p.id,
-      {
-        id: p.id,
-        name: getText(getProp(p, 'Name')),
-        icon: getSelect(getProp(p, 'Icon')) || 'folder',
-        color: getSelect(getProp(p, 'Color')) || '#B8AEFF',
-      },
+      { id: p.id, name: getText(getProp(p, 'Name')), icon: resolveIcon(getSelect(getProp(p, 'Icon'))), color: resolveColor(getSelect(getProp(p, 'Color'))) },
     ])
   );
-
   const all = tasksRes.results.map((p: any) => mapTask(p, listsMap));
   const parents = all.filter((t: Task) => !t.parentTaskId);
   const children = all.filter((t: Task) => t.parentTaskId);
@@ -113,24 +121,15 @@ export async function getTask(id: string): Promise<Task | null> {
         filter: { property: 'ParentTask', relation: { contains: id } },
       }),
     ]) as [any, any, any];
-
     const listsMap = new Map<string, TodoList>(
       listsRes.results.map((p: any) => [
         p.id,
-        {
-          id: p.id,
-          name: getText(getProp(p, 'Name')),
-          icon: getSelect(getProp(p, 'Icon')) || 'folder',
-          color: getSelect(getProp(p, 'Color')) || '#B8AEFF',
-        },
+        { id: p.id, name: getText(getProp(p, 'Name')), icon: resolveIcon(getSelect(getProp(p, 'Icon'))), color: resolveColor(getSelect(getProp(p, 'Color'))) },
       ])
     );
-
     const task = mapTask(page, listsMap);
     task.subTasks = subsRes.results.map((p: any) => ({
-      id: p.id,
-      name: getText(getProp(p, 'Name')),
-      done: getSelect(getProp(p, 'Status')) === 'done',
+      id: p.id, name: getText(getProp(p, 'Name')), done: getSelect(getProp(p, 'Status')) === 'done',
     }));
     return task;
   } catch { return null; }
@@ -150,7 +149,6 @@ export async function createTask(data: {
   if (data.dueDate) props.DueDate = { date: { start: data.dueDate } };
   if (data.notes) props.Notes = { rich_text: [{ text: { content: data.notes } }] };
   if (data.parentTaskId) props.ParentTask = { relation: [{ id: data.parentTaskId }] };
-
   const page = await notion.pages.create({ parent: { database_id: TASKS_DB }, properties: props }) as any;
   return {
     id: page.id, name: data.name, status: 'todo',
