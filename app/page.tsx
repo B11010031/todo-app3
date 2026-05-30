@@ -175,7 +175,7 @@ export default function App() {
     const ns=t.status==='done'?'todo':'done';
     setTasks(p=>p.map(x=>x.id===id?{...x,status:ns,subTasks:ns==='done'?x.subTasks.map(s=>({...s,done:true})):x.subTasks}:x));
     setLastUndo({type:'toggle',id,prev:t.status,psubs:t.subTasks});
-    showToast(ns==='done'?'隞餃?撌脣?????:'隞餃?撌脣儔??);
+    showToast(ns==='done'?'任務已完成 ✓':'任務已復原');
     await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:ns,subTaskIds:ns==='done'?subIds:[]})});
   };
   const toggleSub=async(tid:string,sid:string)=>{
