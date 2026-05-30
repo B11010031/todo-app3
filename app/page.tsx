@@ -320,7 +320,7 @@ export default function App() {
                 {f:'date' as const,icon:'clock',bg:'#EBF3FF',ic:'#6B9EE0',label:'時間',val:detTask.dueDate?fmtDue(detTask.dueDate):<span style={{color:'#C8CCE0'}}>未設定</span>},
                 {f:'list' as const,icon:'folder',bg:'rgba(123,107,224,.10)',ic:P,label:'清單',val:lists.find(l=>l.id===detTask.listId)?.name||<span style={{color:'#C8CCE0'}}>未分類</span>},
               ].map((row,i)=>(
-                <button key={i} style={{width:'100%',display:'flex',alignItems:'center',gap:9,padding:'10px 13px',borderBottom:i<2?'.5px solid #F2F3F9':'none',cursor:'pointer',background:'none',border:'none',borderBottom:i<2?'.5px solid #F2F3F9':'none',textAlign:'left'}} onClick={()=>openPicker(row.f,detTask.id)}>
+                <button key={i} style={{width:'100%',display:'flex',alignItems:'center',gap:9,padding:'10px 13px',cursor:'pointer',background:'none',border:'none',borderBottom:i<2?'.5px solid #F2F3F9':'none',textAlign:'left'}} onClick={()=>openPicker(row.f,detTask.id)}>
                   <div style={{width:20,height:20,borderRadius:6,background:row.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><Ico n={row.icon} size={12} color={row.ic}/></div>
                   <span style={{fontSize:10,color:'#B0B8CC',minWidth:26}}>{row.label}</span>
                   <span style={{fontSize:12,color:'#1A1D2E',flex:1}}>{row.val}</span>
@@ -427,7 +427,7 @@ export default function App() {
               <div style={s.scroll}>
                 <div style={{margin:'0 14px 4px',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
                   {[{id:'__all__',icon:'checklist',bg:'rgba(123,107,224,.10)',ic:P,name:'所有任務',cnt:tasks.filter(t=>t.status!=='done').length},{id:'__imp__',icon:'star',bg:'#FEE2E2',ic:'#E24B4A',name:'重要',cnt:tasks.filter(t=>t.priority==='high'&&t.status!=='done').length},{id:'__done__',icon:'check',bg:'#DCFCE7',ic:'#22C55E',name:'已完成',cnt:tasks.filter(t=>t.status==='done').length}].map(item=>(
-                    <button key={item.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'.5px solid #F0F2F8',cursor:'pointer',background:'none',border:'none',borderBottom:'.5px solid #F0F2F8',textAlign:'left',fontFamily:'inherit'}} onClick={()=>{setLdId(item.id);setLdFilter('all');}}>
+                    <button key={item.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',cursor:'pointer',background:'none',border:'none',borderBottom:'.5px solid #F0F2F8',textAlign:'left',fontFamily:'inherit'}} onClick={()=>{setLdId(item.id);setLdFilter('all');}}>
                       <div style={{width:27,height:27,borderRadius:9,background:item.bg,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={item.icon} size={14} color={item.ic}/></div>
                       <span style={{flex:1,fontSize:13,fontWeight:500,color:'#1A1D2E'}}>{item.name}</span>
                       <span style={{fontSize:11,color:'#B0B8CC',background:'#F1F3F9',padding:'2px 8px',borderRadius:7}}>{item.cnt}</span>
@@ -550,7 +550,7 @@ export default function App() {
             {pickerField==='list'&&(<>
               <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>選取清單</div>
               {lists.map(l=>{const cur=pickerTid?tasks.find(t=>t.id===pickerTid)?.listId:addLid;return(
-                <button key={l.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'.5px solid #F2F3F9',cursor:'pointer',background:'none',border:'none',borderBottom:'.5px solid #F2F3F9',textAlign:'left',fontFamily:'inherit'}} onClick={()=>setPList(l.id)}>
+                <button key={l.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',cursor:'pointer',background:'none',border:'none',borderBottom:'.5px solid #F2F3F9',textAlign:'left',fontFamily:'inherit'}} onClick={()=>setPList(l.id)}>
                   <div style={{width:22,height:22,borderRadius:7,background:l.color,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={l.icon?.replace('ti-','')||'folder'} size={12} color="white"/></div>
                   <span style={{flex:1,fontSize:13,fontWeight:500,color:'#1A1D2E'}}>{l.name}</span>
                   {cur===l.id&&<div style={{width:16,height:16,borderRadius:'50%',background:P,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n="check" size={8} color="white"/></div>}
