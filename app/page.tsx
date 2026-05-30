@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Task, TodoList } from '@/types';
 
 const PRI_BAR: Record<string,string> = { high:'#E8706A', medium:'#F5C842', low:'#72C48A', none:'transparent' };
-const PRI_LABEL: Record<string,string> = { high:'高優先', medium:'中優先', low:'低優先', none:'未設定' };
+const PRI_LABEL: Record<string,string> = { high:'High', medium:'Medium', low:'Low', none:'None' };
 const PRI_DOT: Record<string,string> = { high:'#E8706A', medium:'#F5C842', low:'#72C48A', none:'#DDDFE8' };
 const ICONS = ['briefcase','home','folder','heart','star','book','dumbbell','shopping-cart','plane','banknote'];
 const COLORS = ['#F0A8A0','#F5D080','#80D5B8','#B8AEFF','#7B6BE0','#7BB8E8','#E8706A','#C8CCD8'];
@@ -103,7 +103,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
           {(list||task.dueDate) && (
             <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4,paddingLeft:25}}>
               {list && <span style={{fontSize:10,padding:'1px 7px',borderRadius:20,fontWeight:600,background:chipColors[ci],color:textColors[ci]}}>{list.name}</span>}
-              {task.dueDate && <span style={{fontSize:10,color:'#B0B8CC',display:'flex',alignItems:'center',gap:2}}><Ico n="clock" size={10} color="#B0B8CC"/>{task.dueDate.startsWith(new Date().toISOString().slice(0,10))?'隞予':task.dueDate.slice(5,10).replace('-','/')}</span>}
+              {task.dueDate && <span style={{fontSize:10,color:'#B0B8CC',display:'flex',alignItems:'center',gap:2}}><Ico n="clock" size={10} color="#B0B8CC"/>{task.dueDate.startsWith(new Date().toISOString().slice(0,10))?'Today':task.dueDate.slice(5,10).replace('-','/')}</span>}
             </div>
           )}
           {task.subTasks.length>0 && (
@@ -168,14 +168,14 @@ export default function App() {
 
   const showToast=(msg:string)=>{setToast(msg);if(toastRef.current)clearTimeout(toastRef.current);toastRef.current=setTimeout(()=>setToast(''),2800);};
   const todayStr=new Date().toISOString().slice(0,10);
-  const fmtDue=(d:string|null)=>{if(!d)return'';if(d==='today'||d===todayStr)return'隞予';if(d==='tomorrow')return'?予';return d.slice(5,10).replace('-','/');};
+  const fmtDue=(d:string|null)=>{if(!d)return'';if(d==='today'||d===todayStr)return'Today';if(d==='tomorrow')return'Tomorrow';return d.slice(5,10).replace('-','/');};
 
   const toggleDone=async(id:string,subIds:string[])=>{
     const t=tasks.find(x=>x.id===id);if(!t)return;
     const ns=t.status==='done'?'todo':'done';
     setTasks(p=>p.map(x=>x.id===id?{...x,status:ns,subTasks:ns==='done'?x.subTasks.map(s=>({...s,done:true})):x.subTasks}:x));
     setLastUndo({type:'toggle',id,prev:t.status,psubs:t.subTasks});
-    showToast(ns==='done'?'任務已完成 ✓':'任務已復原');
+    showToast(ns==='done'?'Done v':'Undone');
     await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:ns,subTaskIds:ns==='done'?subIds:[]})});
   };
   const toggleSub=async(tid:string,sid:string)=>{
@@ -186,14 +186,14 @@ export default function App() {
   const deleteTask=async(id:string)=>{
     const t=tasks.find(x=>x.id===id);if(!t)return;
     setLastUndo({type:'delete',task:t});setTasks(p=>p.filter(x=>x.id!==id));
-    showToast(`??歇?芷`);
+    showToast(`'${t.name}'Deleted`);
     await fetch(`/api/tasks/${id}`,{method:'DELETE'});
   };
   const togglePin=async(id:string)=>{
     const t=tasks.find(x=>x.id===id);if(!t)return;
     setTasks(p=>p.map(x=>x.id===id?{...x,pinned:!x.pinned}:x));
     await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pinned:!t.pinned})});
-    showToast(t.pinned?'已置頂':'已取消置頂');
+    showToast(t.pinned?'Unpinned':'Pinned');
   };
   const undoLast=()=>{
     if(!lastUndo)return;
@@ -214,7 +214,7 @@ export default function App() {
     const c=await res.json();
     const l=lists.find(x=>x.id===c.listId);
     setTasks(p=>[{...c,listName:l?.name||'',listColor:l?.color||'',listIcon:l?.icon||'',subTasks:[],...c},...p]);
-    showToast(`??歇?啣?`);
+    showToast(`'${addName.trim()}'Add`);
   };
   const addSub=async()=>{
     if(!newSubName.trim()||!detailId)return;
@@ -227,10 +227,10 @@ export default function App() {
   const saveList=async()=>{
     if(!newListName.trim())return;
     const body={name:newListName,icon:newListIcon,color:newListColor};
-    if(editListId){await fetch('/api/lists/'+editListId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});setLists(p=>p.map(l=>l.id===editListId?{...l,...body}:l));showToast('清單已更新');}else{const res=await fetch('/api/lists',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const c=await res.json();setLists(p=>[...p,c]);showToast('清單已建立');}setListSheetOpen(false);
+    if(editListId){await fetch(`/api/lists/${editListId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});setLists(p=>p.map(l=>l.id===editListId?{...l,...body}:l));showToast('Updated');}
+    else{const res=await fetch('/api/lists',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const c=await res.json();setLists(p=>[...p,c]);showToast('Created');}
+    setListSheetOpen(false);
   };
-
-
 
   const detTask=tasks.find(t=>t.id===detailId);
   const today=new Date();
@@ -278,7 +278,7 @@ export default function App() {
       {(['today','all','lists','cal'] as Tab[]).map((t,i)=>(
         <button key={t} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3,border:'none',cursor:'pointer',fontFamily:'inherit',borderRadius:40,padding:'8px 4px',transition:'all .15s',background:tab===t?'rgba(123,107,224,.12)':'transparent',color:tab===t?P:'#B0B8CC',fontSize:9,fontWeight:tab===t?700:500}} onClick={()=>setTab(t)}>
           <Ico n={['sun','list','grid','calendar'][i]} size={tab===t?22:20} color={tab===t?P:'#B0B8CC'}/>
-          <span style={{fontSize:9,letterSpacing:tab===t?'.01em':'0'}}>{['今日','所有','清單','行事曆'][i]}</span>
+          <span style={{fontSize:9,letterSpacing:tab===t?'.01em':'0'}}>{['Today','All','Lists','Calendar'][i]}</span>
         </button>
       ))}
     </div>
@@ -291,7 +291,7 @@ export default function App() {
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#F2F3F9'}}>
       <div style={{textAlign:'center'}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:P,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}><Ico n="check" size={24} color="white"/></div>
-        <p style={{fontSize:14,color:'#B0B8CC'}}>載入中…</p>
+        <p style={{fontSize:14,color:'#B0B8CC',fontFamily:"'DM Sans',-apple-system,sans-serif"}}>Loading...</p>
       </div>
     </div>
   );
@@ -304,7 +304,7 @@ export default function App() {
           <div style={{background:'#fff',paddingTop:'env(safe-area-inset-top,44px)',flexShrink:0,borderBottom:'.5px solid #ECEEF5'}}>
             <div style={{padding:'0 18px 12px'}}>
               <button style={{display:'flex',alignItems:'center',gap:4,marginBottom:10,border:'none',background:'none',cursor:'pointer',padding:0}} onClick={()=>setDetailId(null)}>
-                <Ico n="arrow-left" size={18} color={P}/><span style={{fontSize:12,color:P,fontWeight:500}}>{prevTab==='today'?'隞':prevTab==='all'?'???:'皜'}</span>
+                <Ico n="arrow-left" size={18} color={P}/><span style={{fontSize:12,color:P,fontWeight:500}}>{prevTab==='today'?'Today':prevTab==='all'?'All':'Lists'}</span>
               </button>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 <button style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${detTask.status==='done'?'#C0BCCF':'#D0C8FF'}`,background:detTask.status==='done'?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}} onClick={()=>toggleDone(detTask.id,detTask.subTasks.map(s=>s.id))}>
@@ -316,9 +316,9 @@ export default function App() {
           </div>
           <div style={{flex:1,overflowY:'auto',paddingBottom:80,paddingTop:10}}>
             <div style={s.infoCard}>
-              {[{f:'pri' as const,icon:'flag',bg:'#FFF3DC',ic:'#F5C842',label:'?芸?',val:<>{<span style={{display:'inline-block',width:7,height:7,borderRadius:'50%',background:PRI_DOT[detTask.priority],marginRight:5}}/>}{PRI_LABEL[detTask.priority]}</>},
-                {f:'date' as const,icon:'clock',bg:'#EBF3FF',ic:'#6B9EE0',label:'??',val:detTask.dueDate?fmtDue(detTask.dueDate):<span style={{color:'#C8CCE0'}}>?芾身摰?/span>},
-                {f:'list' as const,icon:'folder',bg:'rgba(123,107,224,.10)',ic:P,label:'皜',val:lists.find(l=>l.id===detTask.listId)?.name||<span style={{color:'#C8CCE0'}}>?芸?憿?/span>},
+              {[{f:'pri' as const,icon:'flag',bg:'#FFF3DC',ic:'#F5C842',label:'Priority',val:<>{<span style={{display:'inline-block',width:7,height:7,borderRadius:'50%',background:PRI_DOT[detTask.priority],marginRight:5}}/>}{PRI_LABEL[detTask.priority]}</>},
+                {f:'date' as const,icon:'clock',bg:'#EBF3FF',ic:'#6B9EE0',label:'Date',val:detTask.dueDate?fmtDue(detTask.dueDate):<span style={{color:'#C8CCE0'}}>None</span>},
+                {f:'list' as const,icon:'folder',bg:'rgba(123,107,224,.10)',ic:P,label:'Lists',val:lists.find(l=>l.id===detTask.listId)?.name||<span style={{color:'#C8CCE0'}}>Uncategorized</span>},
               ].map((row,i)=>(
                 <button key={i} style={{width:'100%',display:'flex',alignItems:'center',gap:9,padding:'10px 13px',borderBottom:i<2?'.5px solid #F2F3F9':'none',cursor:'pointer',background:'none',border:'none',textAlign:'left'}} onClick={()=>openPicker(row.f,detTask.id)}>
                   <div style={{width:20,height:20,borderRadius:6,background:row.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><Ico n={row.icon} size={12} color={row.ic}/></div>
@@ -329,12 +329,12 @@ export default function App() {
               ))}
             </div>
             <div style={{margin:'8px 14px 0',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
-              <div style={{padding:'7px 13px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase',borderBottom:'.5px solid #F2F3F9'}}>????/div>
-              <textarea style={{width:'100%',border:'none',outline:'none',fontSize:12,color:'#6B6F85',lineHeight:1.6,padding:'8px 13px 12px',background:'transparent',caretColor:P,minHeight:64,resize:'none',fontFamily:'inherit'}} placeholder="?啣????圳" value={detNotes} onChange={e=>setDetNotes(e.target.value)} onBlur={()=>updateField(detTask.id,{notes:detNotes})}/>
+              <div style={{padding:'7px 13px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase',borderBottom:'.5px solid #F2F3F9'}}>Notes</div>
+              <textarea style={{width:'100%',border:'none',outline:'none',fontSize:12,color:'#6B6F85',lineHeight:1.6,padding:'8px 13px 12px',background:'transparent',caretColor:P,minHeight:64,resize:'none',fontFamily:'inherit'}} placeholder='Add note...' value={detNotes} onChange={e=>setDetNotes(e.target.value)} onBlur={()=>updateField(detTask.id,{notes:detNotes})}/>
             </div>
             <div style={{margin:'8px 14px 0',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
               <div style={{padding:'7px 13px 3px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'.5px solid #F2F3F9'}}>
-                <span style={{fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>摮遙??/span>
+                <span style={{fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>Subtasks</span>
                 <span style={{fontSize:10,fontWeight:600,color:P}}>{detTask.subTasks.filter(s=>s.done).length}/{detTask.subTasks.length}</span>
               </div>
               {detTask.subTasks.map(s=>(
@@ -347,17 +347,17 @@ export default function App() {
               ))}
               <div style={{display:'flex',alignItems:'center',gap:9,padding:'9px 13px'}}>
                 <div style={{width:15,height:15,borderRadius:'50%',border:'1.5px solid #C8CCE0',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><Ico n="plus" size={10} color="#B0B8CC"/></div>
-                <input style={{flex:1,border:'none',outline:'none',fontSize:12,color:'#1A1D2E',background:'transparent',caretColor:P,fontFamily:'inherit'}} placeholder="?啣?摮遙?圳" value={newSubName} onChange={e=>setNewSubName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')addSub();}}/>
-                {newSubName&&<button style={{fontSize:11,fontWeight:600,color:P,border:'none',background:'none',cursor:'pointer'}} onClick={addSub}>?啣?</button>}
+                <input style={{flex:1,border:'none',outline:'none',fontSize:12,color:'#1A1D2E',background:'transparent',caretColor:P,fontFamily:'inherit'}} placeholder='Add subtask...' value={newSubName} onChange={e=>setNewSubName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')addSub();}}/>
+                {newSubName&&<button style={{fontSize:11,fontWeight:600,color:P,border:'none',background:'none',cursor:'pointer'}} onClick={addSub}>Add</button>}
               </div>
             </div>
           </div>
           <div style={{position:'fixed',bottom:0,left:'calc(50% - 240px)',right:'calc(50% - 240px)',padding:'12px 14px',paddingBottom:'calc(env(safe-area-inset-bottom,16px) + 12px)',background:'rgba(242,243,249,.92)',backdropFilter:'blur(12px)',display:'flex',gap:10}}>
             <button style={{flex:1,height:42,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',background:'#F0F2F8',border:'.5px solid #E0E2EC',fontSize:12,fontWeight:500,color:P,fontFamily:'inherit'}} onClick={()=>setDetailId(null)}>
-              <Ico n="arrow-left" size={15} color={P}/>餈?
+              <Ico n="arrow-left" size={15} color={P}/>Back
             </button>
             <button style={{flex:2,height:42,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:6,cursor:'pointer',background:detTask.status==='done'?'#C0BCCF':P,boxShadow:detTask.status==='done'?'none':'0 4px 14px rgba(123,107,224,.32)',fontSize:12,fontWeight:700,color:'#fff',border:'none',fontFamily:'inherit'}} onClick={()=>toggleDone(detTask.id,detTask.subTasks.map(s=>s.id))}>
-              <Ico n={detTask.status==='done'?'rotate-ccw':'check'} size={15} color="white"/>{detTask.status==='done'?'敺拙?':'璅?摰?'}
+              <Ico n={detTask.status==='done'?'rotate-ccw':'check'} size={15} color="white"/>{detTask.status==='done'?'Undo':'Complete'}
             </button>
           </div>
         </div>
@@ -365,7 +365,7 @@ export default function App() {
 
       {/* LIST DETAIL */}
       {ldId&&!detailId&&(()=>{
-        const sp:{[k:string]:{name:string;icon:string}}={__all__:{name:'??遙??,icon:'checklist'},__imp__:{name:'??',icon:'star'},__done__:{name:'撌脣???,icon:'check'}};
+        const sp:{[k:string]:{name:string;icon:string}}={__all__:{name:'All Tasks',icon:'checklist'},__imp__:{name:'Important',icon:'star'},__done__:{name:'Completed',icon:'check'}};
         const isSpecial=ldId.startsWith('__');
         const info=isSpecial?sp[ldId]:{name:lists.find(l=>l.id===ldId)?.name||'',icon:lists.find(l=>l.id===ldId)?.icon?.replace('ti-','')||'folder'};
         let lt=isSpecial?(ldId==='__all__'?tasks:ldId==='__imp__'?tasks.filter(t=>t.priority==='high'):tasks.filter(t=>t.status==='done')):tasks.filter(t=>t.listId===ldId);
@@ -378,18 +378,18 @@ export default function App() {
               <div style={{padding:'0 18px 12px',display:'flex',alignItems:'center',gap:10}}>
                 <button style={{border:'none',background:'none',cursor:'pointer',padding:0}} onClick={()=>setLdId(null)}><Ico n="arrow-left" size={20} color="white"/></button>
                 <div style={{width:32,height:32,borderRadius:10,background:'rgba(255,255,255,.22)',display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={info.icon} size={16} color="white"/></div>
-                <div style={{flex:1}}><div style={{fontSize:11,color:'rgba(255,255,255,.65)'}}>{lt.filter(t=>t.status!=='done').length} ?遙??/div><div style={{fontSize:21,fontWeight:700,color:'#fff'}}>{info.name}</div></div>
+                <div style={{flex:1}}><div style={{fontSize:11,color:'rgba(255,255,255,.65)'}}>{lt.filter(t=>t.status!=='done').length} tasks</div><div style={{fontSize:21,fontWeight:700,color:'#fff'}}>{info.name}</div></div>
               </div>
               <div style={{display:'flex',gap:6,padding:'0 16px 10px',overflowX:'auto'}}>
                 {(['all','today','hi','done'] as const).map((f,i)=>(
-                  <button key={f} style={{flexShrink:0,padding:'4px 12px',borderRadius:20,fontSize:10.5,fontWeight:600,cursor:'pointer',border:'none',background:ldFilter===f?'white':'rgba(255,255,255,.2)',color:ldFilter===f?P:'rgba(255,255,255,.88)',fontFamily:'inherit'}} onClick={()=>setLdFilter(f)}>{['?券','隞','??','摰?'][i]}</button>
+                  <button key={f} style={{flexShrink:0,padding:'4px 12px',borderRadius:20,fontSize:10.5,fontWeight:600,cursor:'pointer',border:'none',background:ldFilter===f?'white':'rgba(255,255,255,.2)',color:ldFilter===f?P:'rgba(255,255,255,.88)',fontFamily:'inherit'}} onClick={()=>setLdFilter(f)}>{['All','Today','Important','Done'][i]}</button>
                 ))}
               </div>
             </div>
             <div style={{flex:1,overflowY:'auto',paddingTop:10,paddingBottom:100,background:'#F2F3F9'}}>
               {lt.filter(t=>t.status!=='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('lists');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
               {lt.filter(t=>t.status==='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('lists');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-              {lt.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>甇斗??格??遙??/div>}
+              {lt.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>No tasks</div>}
             </div>
             <Fab onClick={()=>setAddOpen(true)}/>
           </div>
@@ -401,32 +401,32 @@ export default function App() {
         <>
           {tab==='today'&&(
             <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
-              <Hdr title="隞" sub={today.toLocaleDateString('zh-TW',{weekday:'long',month:'long',day:'numeric'})}/>
+              <Hdr title="Today" sub={today.toLocaleDateString('zh-TW',{weekday:'long',month:'long',day:'numeric'})}/>
               <div style={s.scroll}>
-                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>蝵桅?<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('today');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
-                <div style={s.pinDiv}><div style={{flex:1,height:.5,background:'#D4D6E4'}}/><span style={{fontSize:9.5,color:'#B0B8CC',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:3}}><Ico n="list" size={9} color="#B0B8CC"/>隞隞餃?</span><div style={{flex:1,height:.5,background:'#D4D6E4'}}/></div>
+                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>Pinned<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('today');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
+                <div style={s.pinDiv}><div style={{flex:1,height:.5,background:'#D4D6E4'}}/><span style={{fontSize:9.5,color:'#B0B8CC',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:3}}><Ico n="list" size={9} color="#B0B8CC"/>Todaytask</span><div style={{flex:1,height:.5,background:'#D4D6E4'}}/></div>
                 {activeTodayTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('today');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
                 {doneTodayTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('today');setDetailId(id);}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-                {todayTasks.length===0&&pinnedTasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>隞予瘝?隞餃?嚗? + ?啣?</div>}
+                {todayTasks.length===0&&pinnedTasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>No tasks today</div>}
               </div>
             </div>
           )}
           {tab==='all'&&(
             <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
-              <Hdr title="?券" sub="??遙?"/>
+              <Hdr title="All" sub="Alltask"/>
               <div style={s.scroll}>
-                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>蝵桅?<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('all');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
+                {pinnedTasks.length>0&&<><div style={{...s.secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>Pinned<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('all');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</>}
                 {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...s.secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>t.status!=='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('all');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}{lt.filter(t=>t.status==='done').map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('all');setDetailId(id);}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}</div>);})}
-                {tasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>?桀?瘝?隞颱?隞餃?</div>}
+                {tasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>No tasks</div>}
               </div>
             </div>
           )}
           {tab==='lists'&&(
             <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
-              <Hdr title="皜" sub="蝞∠?皜" extra={<button style={{width:34,height:34,borderRadius:'50%',background:'rgba(255,255,255,.18)',border:'1px solid rgba(255,255,255,.3)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',paddingBottom:2}} onClick={()=>{setEditListId(null);setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setListSheetOpen(true);}}><Ico n="plus" size={17} color="white"/></button>}/>
+              <Hdr title="Lists" sub="ManageLists" extra={<button style={{width:34,height:34,borderRadius:'50%',background:'rgba(255,255,255,.18)',border:'1px solid rgba(255,255,255,.3)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',paddingBottom:2}} onClick={()=>{setEditListId(null);setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setListSheetOpen(true);}}><Ico n="plus" size={17} color="white"/></button>}/>
               <div style={s.scroll}>
                 <div style={{margin:'0 14px 4px',background:'#fff',borderRadius:12,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
-                  {[{id:'__all__',icon:'checklist',bg:'rgba(123,107,224,.10)',ic:P,name:'??遙??,cnt:tasks.filter(t=>t.status!=='done').length},{id:'__imp__',icon:'star',bg:'#FEE2E2',ic:'#E24B4A',name:'??',cnt:tasks.filter(t=>t.priority==='high'&&t.status!=='done').length},{id:'__done__',icon:'check',bg:'#DCFCE7',ic:'#22C55E',name:'撌脣???,cnt:tasks.filter(t=>t.status==='done').length}].map(item=>(
+                  {[{id:'__all__',icon:'checklist',bg:'rgba(123,107,224,.10)',ic:P,name:'All Tasks',cnt:tasks.filter(t=>t.status!=='done').length},{id:'__imp__',icon:'star',bg:'#FEE2E2',ic:'#E24B4A',name:'Important',cnt:tasks.filter(t=>t.priority==='high'&&t.status!=='done').length},{id:'__done__',icon:'check',bg:'#DCFCE7',ic:'#22C55E',name:'Completed',cnt:tasks.filter(t=>t.status==='done').length}].map(item=>(
                     <button key={item.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'.5px solid #F0F2F8',cursor:'pointer',background:'none',border:'none',textAlign:'left',fontFamily:'inherit'}} onClick={()=>{setLdId(item.id);setLdFilter('all');}}>
                       <div style={{width:27,height:27,borderRadius:9,background:item.bg,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={item.icon} size={14} color={item.ic}/></div>
                       <span style={{flex:1,fontSize:13,fontWeight:500,color:'#1A1D2E'}}>{item.name}</span>
@@ -436,18 +436,18 @@ export default function App() {
                   ))}
                 </div>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 16px 5px'}}>
-                  <span style={{fontSize:10,fontWeight:700,color:'#B0B8CC',letterSpacing:'.08em',textTransform:'uppercase'}}>??皜</span>
+                  <span style={{fontSize:10,fontWeight:700,color:'#B0B8CC',letterSpacing:'.08em',textTransform:'uppercase'}}>MyLists</span>
                   <button style={{width:22,height:22,borderRadius:7,background:'rgba(123,107,224,.12)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',border:'none'}} onClick={()=>{setEditListId(null);setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setListSheetOpen(true);}}><Ico n="plus" size={13} color={P}/></button>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,padding:'0 14px'}}>
                   {lists.map(l=><button key={l.id} style={{borderRadius:14,padding:'14px 12px',background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',cursor:'pointer',textAlign:'left',border:'none',fontFamily:'inherit'}} onClick={()=>{setLdId(l.id);setLdFilter('all');}} onContextMenu={e=>{e.preventDefault();setEditListId(l.id);setNewListName(l.name);setNewListIcon(l.icon?.replace('ti-','')||'folder');setNewListColor(l.color);setListSheetOpen(true);}}>
                     <div style={{width:30,height:30,borderRadius:9,background:l.color,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}><Ico n={l.icon?.replace('ti-','')||'folder'} size={15} color="white"/></div>
                     <div style={{fontSize:12,fontWeight:700,color:'#1A1D2E'}}>{l.name}</div>
-                    <div style={{fontSize:10,color:'#B0B8CC',marginTop:2}}>{tasks.filter(t=>t.listId===l.id&&t.status!=='done').length} ?遙??/div>
+                    <div style={{fontSize:10,color:'#B0B8CC',marginTop:2}}>{tasks.filter(t=>t.listId===l.id&&t.status!=='done').length} tasks</div>
                   </button>)}
                   <button style={{gridColumn:'1/-1',borderRadius:14,display:'flex',alignItems:'center',gap:10,padding:'11px 14px',background:'#EAEBF0',cursor:'pointer',border:'none',textAlign:'left',fontFamily:'inherit'}} onClick={()=>{setLdId('__done__');setLdFilter('all');}}>
                     <div style={{width:30,height:30,borderRadius:9,background:'#C8CCD8',display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n="check" size={15} color="white"/></div>
-                    <div><div style={{fontSize:12,fontWeight:700,color:'#8890A0'}}>撌脣???/div><div style={{fontSize:10,color:'#B0B8CC'}}>{tasks.filter(t=>t.status==='done').length} ??/div></div>
+                    <div><div style={{fontSize:12,fontWeight:700,color:'#8890A0'}}>Done</div><div style={{fontSize:10,color:'#B0B8CC'}}>{tasks.filter(t=>t.status==='done').length} items</div></div>
                     <div style={{marginLeft:'auto'}}><Ico n="chevron-right" size={13} color="#C8CAD8"/></div>
                   </button>
                 </div>
@@ -456,18 +456,18 @@ export default function App() {
           )}
           {tab==='cal'&&(
             <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
-              <Hdr title="銵??" sub="銵????"/>
+              <Hdr title="Calendar" sub="CalendarView"/>
               <div style={s.scroll}>
                 <div style={{margin:'0 14px 10px',background:'#fff',borderRadius:14,boxShadow:'0 1px 6px rgba(26,29,46,.07)',overflow:'hidden'}}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 14px 8px'}}>
-                    <span style={{fontSize:14,fontWeight:700,color:'#1A1D2E'}}>{calYr}撟?{calMo+1}??/span>
+                    <span style={{fontSize:14,fontWeight:700,color:'#1A1D2E'}}>{calYr}Y {calMo+1}M</span>
                     <div style={{display:'flex',gap:3}}>
                       <button style={{width:26,height:26,borderRadius:8,background:'#F1F3F9',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{let m=calMo-1,y=calYr;if(m<0){m=11;y--;}setCalMo(m);setCalYr(y);}}><Ico n="chevron-left" size={13} color="#9CA4BC"/></button>
                       <button style={{width:26,height:26,borderRadius:8,background:'#F1F3F9',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{let m=calMo+1,y=calYr;if(m>11){m=0;y++;}setCalMo(m);setCalYr(y);}}><Ico n="chevron-right" size={13} color="#9CA4BC"/></button>
                     </div>
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',padding:'0 8px'}}>
-                    {['??,'銝','鈭?,'銝?,'??,'鈭?,'??].map(d=><div key={d} style={{textAlign:'center',fontSize:9,fontWeight:700,color:'#B0B8CC',padding:'2px 0'}}>{d}</div>)}
+                    {['D','Mo','Tu','We','Th','Fr','Sa'].map(d=><div key={d} style={{textAlign:'center',fontSize:9,fontWeight:700,color:'#B0B8CC',padding:'2px 0'}}>{d}</div>)}
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:1,padding:'2px 8px 10px'}}>
                     {Array.from({length:calFd}).map((_,i)=>{const d=new Date(calYr,calMo,0).getDate()-calFd+i+1;return<div key={`p${i}`} style={{display:'flex',flexDirection:'column',alignItems:'center',padding:'2px 1px'}}><span style={{fontSize:11,color:'#C4C8DC'}}>{d}</span></div>;})}
@@ -483,11 +483,11 @@ export default function App() {
                   </div>
                 </div>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 14px 8px'}}>
-                  <span style={{fontSize:11,fontWeight:700,color:'#6B5EE0',background:'rgba(123,107,224,.10)',padding:'3px 10px',borderRadius:8}}>{calMo+1}??{calSel}??/span>
+                  <span style={{fontSize:11,fontWeight:700,color:'#6B5EE0',background:'rgba(123,107,224,.10)',padding:'3px 10px',borderRadius:8}}>{calMo+1}M {calSel}D</span>
                   <button style={{width:26,height:26,borderRadius:8,background:'rgba(123,107,224,.10)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{const ds=`${calYr}-${String(calMo+1).padStart(2,'0')}-${String(calSel).padStart(2,'0')}`;setAddDue(ds===todayStr?'today':ds);setAddLid('');setAddPri('none');setAddOpen(true);}}><Ico n="plus" size={14} color={P}/></button>
                 </div>
                 {getTasksForDay(calYr,calMo+1,calSel).map(t=><TaskCard key={t.id} task={t} lists={lists} onToggle={toggleDone} onOpen={id=>{setPrevTab('cal');setDetailId(id);const tk=tasks.find(x=>x.id===id);setDetNotes(tk?.notes||'');}} onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>)}
-                {getTasksForDay(calYr,calMo+1,calSel).length===0&&<div style={{textAlign:'center',padding:'20px',color:'#B0B8CC',fontSize:13}}>?予瘝?隞餃?</div>}
+                {getTasksForDay(calYr,calMo+1,calSel).length===0&&<div style={{textAlign:'center',padding:'20px',color:'#B0B8CC',fontSize:13}}>No tasks</div>}
               </div>
             </div>
           )}
@@ -501,7 +501,7 @@ export default function App() {
         <div style={s.overlay} onClick={e=>{if(e.target===e.currentTarget){setAddOpen(false);setAddName('');}}}>
           <div style={s.sheet} onClick={e=>e.stopPropagation()}>
             <div style={{padding:'14px 16px 5px'}}>
-              <input autoFocus style={{width:'100%',border:'none',outline:'none',fontSize:15,fontWeight:500,color:'#1A1D2E',caretColor:P,background:'transparent',fontFamily:'inherit'}} placeholder="?啣?隞餃??圳" value={addName} onChange={e=>setAddName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&submitTask()}/>
+              <input autoFocus style={{width:'100%',border:'none',outline:'none',fontSize:15,fontWeight:500,color:'#1A1D2E',caretColor:P,background:'transparent',fontFamily:'inherit'}} placeholder='Add task...' value={addName} onChange={e=>setAddName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&submitTask()}/>
             </div>
             <div style={{display:'flex',alignItems:'center',padding:'3px 12px 10px',height:38}}>
               {[{f:'date' as const,icon:'clock',active:!!addDue,label:fmtDue(addDue)},{f:'list' as const,icon:'grid',active:!!addLid,label:lists.find(l=>l.id===addLid)?.name||''},{f:'pri' as const,icon:'flag',active:addPri!=='none',label:''}].map(btn=>(
@@ -512,7 +512,7 @@ export default function App() {
                 </button>
               ))}
               <div style={{flex:1}}/>
-              <button style={{height:24,padding:'0 12px',background:P,borderRadius:8,fontSize:10.5,fontWeight:700,color:'#fff',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={submitTask}>?啣?</button>
+              <button style={{height:24,padding:'0 12px',background:P,borderRadius:8,fontSize:10.5,fontWeight:700,color:'#fff',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={submitTask}>Add</button>
             </div>
             <div style={{height:'env(safe-area-inset-bottom,0px)'}}/>
           </div>
@@ -528,14 +528,14 @@ export default function App() {
               const curDue=pickerTid?tasks.find(t=>t.id===pickerTid)?.dueDate||'':addDue;
               const now=new Date();
               return(<>
-                <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>?詨???</div>
+                <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>SelectDate</div>
                 <div style={{display:'flex',gap:7,flexWrap:'wrap' as const,padding:'12px 14px',borderBottom:'.5px solid #F2F3F9'}}>
-                  {[['today','隞予'],['tomorrow','?予'],['','皜']].map(([v,l])=>(
+                  {[['today','Today'],['tomorrow','Tomorrow'],['','Clear']].map(([v,l])=>(
                     <button key={v} style={{padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:600,cursor:'pointer',border:`1.5px solid ${curDue===v?P:'#E8EAF0'}`,background:curDue===v?P:'white',color:curDue===v?'white':'#6B6F85',fontFamily:'inherit'}} onClick={()=>setPDate(v)}>{l}</button>
                   ))}
                 </div>
                 <div style={{padding:'12px 14px',display:'flex',gap:10}}>
-                  {[{id:'mo',label:'??,opts:Array.from({length:12},(_,i)=>({v:i+1,l:`${i+1}?})),def:now.getMonth()+1},{id:'day',label:'??,opts:Array.from({length:31},(_,i)=>({v:i+1,l:`${i+1}`})),def:now.getDate()}].map(col=>(
+                  {[{id:'mo',label:'M',opts:Array.from({length:12},(_,i)=>({v:i+1,l:`${i+1}M`})),def:now.getMonth()+1},{id:'day',label:'D',opts:Array.from({length:31},(_,i)=>({v:i+1,l:`${i+1}`})),def:now.getDate()}].map(col=>(
                     <div key={col.id} style={{flex:1,display:'flex',flexDirection:'column',gap:4}}>
                       <label style={{fontSize:10,fontWeight:600,color:'#B0B8CC',textAlign:'center'}}>{col.label}</label>
                       <select id={`pk-${col.id}`} defaultValue={col.def} style={{width:'100%',border:'.5px solid #D0C8FF',borderRadius:10,padding:'8px 6px',fontSize:14,fontWeight:600,color:'#1A1D2E',textAlign:'center',outline:'none',fontFamily:'inherit'}}>
@@ -544,11 +544,11 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <button style={{margin:'2px 14px 14px',height:40,width:'calc(100% - 28px)',background:P,borderRadius:11,fontSize:13,fontWeight:700,color:'white',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>{const mo=String((document.getElementById('pk-mo') as HTMLSelectElement).value).padStart(2,'0');const day=String((document.getElementById('pk-day') as HTMLSelectElement).value).padStart(2,'0');const ds=`${now.getFullYear()}-${mo}-${day}`;setPDate(ds===todayStr?'today':ds);}}>蝣箏?</button>
+                <button style={{margin:'2px 14px 14px',height:40,width:'calc(100% - 28px)',background:P,borderRadius:11,fontSize:13,fontWeight:700,color:'white',border:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>{const mo=String((document.getElementById('pk-mo') as HTMLSelectElement).value).padStart(2,'0');const day=String((document.getElementById('pk-day') as HTMLSelectElement).value).padStart(2,'0');const ds=`${now.getFullYear()}-${mo}-${day}`;setPDate(ds===todayStr?'today':ds);}}>OK</button>
               </>);
             })()}
             {pickerField==='list'&&(<>
-              <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>?詨?皜</div>
+              <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>SelectLists</div>
               {lists.map(l=>{const cur=pickerTid?tasks.find(t=>t.id===pickerTid)?.listId:addLid;return(
                 <button key={l.id} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'.5px solid #F2F3F9',cursor:'pointer',background:'none',border:'none',textAlign:'left',fontFamily:'inherit'}} onClick={()=>setPList(l.id)}>
                   <div style={{width:22,height:22,borderRadius:7,background:l.color,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={l.icon?.replace('ti-','')||'folder'} size={12} color="white"/></div>
@@ -559,9 +559,9 @@ export default function App() {
               <div style={{height:'env(safe-area-inset-bottom,10px)'}}/>
             </>)}
             {pickerField==='pri'&&(<>
-              <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>?詨??芸?蝝?/div>
+              <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E',padding:'0 14px 9px',borderBottom:'.5px solid #ECEEF5'}}>SelectPriority</div>
               <div style={{padding:'12px 14px 16px',display:'flex',flexDirection:'column',gap:8}}>
-                {([['high','擃??,PRI_DOT.high],['medium','銝剖??,PRI_DOT.medium],['low','雿??,PRI_DOT.low],['none','??,'#DDDFE8']] as [Task['priority'],string,string][]).map(([v,n,c])=>{
+                {([['high','High',PRI_DOT.high],['medium','Medium',PRI_DOT.medium],['low','Low',PRI_DOT.low],['none','None','#DDDFE8']] as [Task['priority'],string,string][]).map(([v,n,c])=>{
                   const cur=pickerTid?tasks.find(t=>t.id===pickerTid)?.priority:addPri;
                   return(<button key={v} style={{display:'flex',alignItems:'center',gap:12,padding:'11px 13px',borderRadius:11,cursor:'pointer',border:`${cur===v?2:1.5}px solid ${cur===v?P:'#F0F2F8'}`,background:cur===v?'rgba(123,107,224,.04)':'white',textAlign:'left',fontFamily:'inherit'}} onClick={()=>setPPri(v)}>
                     <div style={{width:18,height:18,borderRadius:'50%',background:c,border:v==='none'?'1.5px solid #C8CCE0':'none',flexShrink:0}}/>
@@ -583,20 +583,20 @@ export default function App() {
             <div style={{width:28,height:3,borderRadius:2,background:'#D8DAE8',margin:'7px auto 10px'}}/>
             <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 14px 10px',borderBottom:'.5px solid #F2F3F9'}}>
               <div style={{width:36,height:36,borderRadius:11,background:newListColor,display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={newListIcon} size={16} color="white"/></div>
-              <input autoFocus style={{flex:1,border:'none',outline:'none',fontSize:14,fontWeight:700,color:'#1A1D2E',caretColor:P,background:'transparent',fontFamily:'inherit'}} placeholder="皜?迂?圳" value={newListName} onChange={e=>setNewListName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&saveList()}/>
+              <input autoFocus style={{flex:1,border:'none',outline:'none',fontSize:14,fontWeight:700,color:'#1A1D2E',caretColor:P,background:'transparent',fontFamily:'inherit'}} placeholder='List name...' value={newListName} onChange={e=>setNewListName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&saveList()}/>
               <Ico n="pencil" size={14} color="#B0B8CC"/>
             </div>
-            <div style={{padding:'7px 14px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>?內</div>
+            <div style={{padding:'7px 14px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>Icon</div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:5,padding:'3px 14px 9px'}}>
               {ICONS.map(ic=><button key={ic} style={{height:34,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',border:`${newListIcon===ic?'2px solid #1A1D2E':'1.5px solid transparent'}`,background:newListIcon===ic?newListColor:'#F1F3F9'}} onClick={()=>setNewListIcon(ic)}><Ico n={ic} size={15} color={newListIcon===ic?'white':'#8890A8'}/></button>)}
             </div>
-            <div style={{padding:'2px 14px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>憿</div>
+            <div style={{padding:'2px 14px 3px',fontSize:9,fontWeight:700,color:'#B0B8CC',letterSpacing:'.07em',textTransform:'uppercase'}}>Color</div>
             <div style={{display:'flex',gap:9,padding:'3px 14px 10px',overflowX:'auto'}}>
               {COLORS.map(c=><button key={c} style={{width:28,height:28,borderRadius:'50%',flexShrink:0,cursor:'pointer',border:`${newListColor===c?'3px solid #1A1D2E':'3px solid transparent'}`,background:c,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setNewListColor(c)}>{newListColor===c&&<Ico n="check" size={12} color="white"/>}</button>)}
             </div>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 14px 6px',borderTop:'.5px solid #F2F3F9',paddingBottom:'calc(env(safe-area-inset-bottom,6px) + 8px)'}}>
-              <button style={{fontSize:12,color:'#B0B8CC',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>setListSheetOpen(false)}>??</button>
-              <button style={{display:'flex',alignItems:'center',gap:3,fontSize:12,fontWeight:700,color:P,border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={saveList}><Ico n="check" size={14} color={P}/>?脣?</button>
+              <button style={{fontSize:12,color:'#B0B8CC',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={()=>setListSheetOpen(false)}>Cancel</button>
+              <button style={{display:'flex',alignItems:'center',gap:3,fontSize:12,fontWeight:700,color:P,border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={saveList}><Ico n="check" size={14} color={P}/>Save</button>
             </div>
           </div>
         </div>
@@ -607,7 +607,7 @@ export default function App() {
         <div style={{position:'fixed',bottom:80,left:'calc(50% - 225px + 14px)',right:'calc(50% - 225px + 14px)',background:'rgba(26,29,46,.9)',color:'#fff',borderRadius:13,padding:'12px 16px',display:'flex',alignItems:'center',gap:9,fontSize:13,zIndex:200,backdropFilter:'blur(8px)'}}>
           <Ico n="check-circle" size={16} color="#C4B8FF"/>
           <span style={{flex:1}}>{toast}</span>
-          <button style={{fontSize:12,fontWeight:600,color:'#C4B8FF',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={undoLast}>敺拙?</button>
+          <button style={{fontSize:12,fontWeight:600,color:'#C4B8FF',border:'none',background:'none',cursor:'pointer',fontFamily:'inherit'}} onClick={undoLast}>Undo</button>
         </div>
       )}
     </div>
