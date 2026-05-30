@@ -1,4 +1,4 @@
-* {
+﻿* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -11,12 +11,10 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-input, textarea, select, button {
+/* Prevent zoom on input focus */
+input, textarea, select {
+  font-size: 16px !important;
   font-family: inherit;
-}
-
-textarea {
-  resize: none;
 }
 
 button {
@@ -24,13 +22,9 @@ button {
   border: none;
   cursor: pointer;
   padding: 0;
+  font-family: inherit;
 }
 
-::-webkit-scrollbar {
-  display: none;
-}
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; -ms-overflow-style: none; }
 
-* {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
