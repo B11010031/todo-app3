@@ -259,8 +259,8 @@ export default function App() {
     scroll:{flex:1,overflowY:'auto' as const,paddingBottom:80,paddingTop:10},
     secLbl:{padding:'8px 16px 3px',fontSize:9.5,fontWeight:700,color:'#B0B8CC',letterSpacing:'.08em',textTransform:'uppercase' as const,display:'flex',alignItems:'center',gap:5},
     pinDiv:{margin:'3px 16px 5px',display:'flex',alignItems:'center',gap:6},
-    fab:{position:'fixed' as const,right:'calc(50% - 225px + 16px)',bottom:'calc(env(safe-area-inset-bottom,0px) + 82px)',width:52,height:52,borderRadius:'50%',background:P,boxShadow:'0 6px 20px rgba(123,107,224,.38)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:40},
-    nav:{position:'fixed' as const,bottom:0,left:'calc(50% - 240px)',right:'calc(50% - 240px)',display:'flex',background:'rgba(255,255,255,.92)',backdropFilter:'blur(20px)',borderTop:'.5px solid #E8EAF0',zIndex:50,paddingBottom:'env(safe-area-inset-bottom,0px)'},
+    fab:{position:'fixed' as const,right:16,bottom:'calc(env(safe-area-inset-bottom,0px) + 82px)',width:52,height:52,borderRadius:'50%',background:P,boxShadow:'0 6px 20px rgba(123,107,224,.38)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:40},
+    nav:{position:'fixed' as const,bottom:0,left:0,right:0,display:'flex',background:'rgba(255,255,255,.92)',backdropFilter:'blur(20px)',borderTop:'.5px solid #E8EAF0',zIndex:50,paddingBottom:'env(safe-area-inset-bottom,0px)'},
     overlay:{position:'fixed' as const,inset:0,maxWidth:480,margin:'0 auto',background:'rgba(26,29,46,.3)',zIndex:100,display:'flex',flexDirection:'column' as const,justifyContent:'flex-end'},
     sheet:{background:'#fff',borderRadius:'16px 16px 0 0'},
     pkSheet:{background:'#fff',borderRadius:'16px 16px 0 0',maxHeight:'70vh',overflowY:'auto' as const},
@@ -352,7 +352,7 @@ export default function App() {
               </div>
             </div>
           </div>
-          <div style={{position:'fixed',bottom:0,left:'calc(50% - 240px)',right:'calc(50% - 240px)',padding:'12px 14px',paddingBottom:'calc(env(safe-area-inset-bottom,16px) + 12px)',background:'rgba(242,243,249,.92)',backdropFilter:'blur(12px)',display:'flex',gap:10}}>
+          <div style={{position:'fixed',bottom:0,left:0,right:0,padding:'12px 14px',paddingBottom:'calc(env(safe-area-inset-bottom,16px) + 12px)',background:'rgba(242,243,249,.92)',backdropFilter:'blur(12px)',display:'flex',gap:10}}>
             <button style={{flex:1,height:42,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',background:'#F0F2F8',border:'.5px solid #E0E2EC',fontSize:12,fontWeight:500,color:P,fontFamily:'inherit'}} onClick={()=>setDetailId(null)}>
               <Ico n="arrow-left" size={15} color={P}/>返回
             </button>
