@@ -278,7 +278,7 @@ export default function App() {
       {(['today','all','lists','cal'] as Tab[]).map((t,i)=>(
         <button key={t} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3,border:'none',cursor:'pointer',fontFamily:'inherit',borderRadius:40,padding:'8px 4px',transition:'all .15s',background:tab===t?'rgba(123,107,224,.12)':'transparent',color:tab===t?P:'#B0B8CC',fontSize:9,fontWeight:tab===t?700:500}} onClick={()=>setTab(t)}>
           <Ico n={['sun','list','grid','calendar'][i]} size={tab===t?22:20} color={tab===t?P:'#B0B8CC'}/>
-          <span style={{fontSize:9,letterSpacing:tab===t?'.01em':'0'}}>{['隞','???,'皜','銵???][i]}</span>
+          <span style={{fontSize:9,letterSpacing:tab===t?'.01em':'0'}}>{['今日','所有','清單','行事曆'][i]}</span>
         </button>
       ))}
     </div>
