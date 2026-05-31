@@ -180,13 +180,13 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
       {/* card */}
       <div
         ref={ref}
-        style={{position:'relative',display:'flex',borderRadius:10,background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',transform:`translateX(${swX}px)`,willChange:'transform',touchAction:'pan-y'}}
+        style={{position:'relative',display:'flex',borderRadius:10,background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',transform:`translateX(${swX}px)`,willChange:'transform',touchAction:'pan-y',userSelect:'none' as const,WebkitUserSelect:'none' as const}}
         onTouchStart={onTS}
         onTouchMove={onTM}
         onTouchEnd={onTE}
         onClick={()=>{ if(Math.abs(swX)>5){setSwX(0);return;} onOpen(task.id); }}
       >
-        <div style={{width:3,flexShrink:0,borderRadius:'3px 0 0 3px',background:PRI_BAR[task.priority]||'transparent'}}/>
+        <div style={{width:4,flexShrink:0,borderRadius:'10px 0 0 10px',background:PRI_BAR[task.priority]||'transparent',alignSelf:'stretch'}}/>
         <div style={{flex:1,padding:'11px 13px',minWidth:0}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <button style={{width:18,height:18,borderRadius:'50%',border:'1.5px solid #D0C8FF',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggle(task.id,task.subTasks.map(s=>s.id));}}/>
@@ -666,7 +666,7 @@ export default function App() {
             <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
               <Hdr title="今日" sub={today.toLocaleDateString('zh-TW',{weekday:'long',month:'long',day:'numeric'})}/>
               <div style={scrollStyle}>
-                {pinnedTasks.length>0&&(<><div style={{...secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>置頂<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=>mkCard(t,'today'))}</>)}
+                {pinnedTasks.length>0&&(<><div style={{...secLbl,gap:4}}><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='#C0B4FF' strokeWidth='2' strokeLinecap='round'><path d='M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4'/><line x1='7' y1='5' x2='17' y2='5'/></svg>置頂<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=>mkCard(t,'today'))}</>)}
                 <div style={{margin:'3px 16px 6px',display:'flex',alignItems:'center',gap:6}}>
                   <div style={{flex:1,height:.5,background:'#D4D6E4'}}/><span style={{fontSize:9.5,color:'#B0B8CC',whiteSpace:'nowrap' as const,display:'flex',alignItems:'center',gap:3}}><Ico n="list" size={9} color="#B0B8CC"/>今日任務</span><div style={{flex:1,height:.5,background:'#D4D6E4'}}/>
                 </div>
@@ -680,7 +680,7 @@ export default function App() {
             <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
               <Hdr title="全部" sub="所有任務"/>
               <div style={scrollStyle}>
-                {pinnedTasks.length>0&&(<><div style={{...secLbl,gap:4}}><Ico n="pin" size={10} color="#C0B4FF"/>置頂<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=>mkCard(t,'all'))}</>)}
+                {pinnedTasks.length>0&&(<><div style={{...secLbl,gap:4}}><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='#C0B4FF' strokeWidth='2' strokeLinecap='round'><path d='M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4'/><line x1='7' y1='5' x2='17' y2='5'/></svg>置頂<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=>mkCard(t,'all'))}</>)}
                 {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>t.status!=='done').map(t=>mkCard(t,'all'))}{lt.filter(t=>t.status==='done').map(t=>mkCard(t,'all'))}</div>);})}
                 {tasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>目前沒有任何任務</div>}
               </div>
