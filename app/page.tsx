@@ -95,7 +95,7 @@ function Sheet({ children, onClose, minH=0.4 }: { children: React.ReactNode; onC
 }
 
 // ── Task Card ──
-function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub, onEditName, onPriority, onPickList }:{
+function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub, onEditName, onPriority, onPickList, onPickDate }:{
   task:Task; lists:TodoList[];
   onToggle:(id:string,subs:string[])=>void;
   onOpen:(id:string)=>void;
@@ -105,6 +105,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
   onEditName:(id:string,name:string)=>void;
   onPriority:(id:string,pri:Task['priority'])=>void;
   onPickList:(id:string)=>void;
+  onPickDate:(id:string)=>void;
 }) {
   const [swX, setSwX] = useState(0);
   const [editing, setEditing] = useState(false);
@@ -268,7 +269,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
               </div>
             </div>
             {/* Date */}
-            <button style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 14px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer',borderBottom:'.5px solid #F2F3F9'}} onClick={()=>{setCtxMenu(false);onOpen(task.id);}}>
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 14px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer',borderBottom:'.5px solid #F2F3F9'}} onClick={()=>{setCtxMenu(false);onPickDate(task.id);}}>
               <div style={{width:30,height:30,borderRadius:8,background:'rgba(107,158,224,.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B9EE0" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
@@ -558,6 +559,7 @@ export default function App() {
       onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub} onEditName={editTaskName}
       onPriority={(id,pri)=>updateField(id,{priority:pri})}
       onPickList={(id)=>{setPickerTid(id);setPickerField('list');}}
+      onPickDate={(id)=>{setPickerTid(id);setPickerField('date');}}
     />
   );
 
