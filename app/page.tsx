@@ -225,53 +225,69 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
           )}
         </div>
       </div>
-      {/* Context menu */}
+      {/* Floating context menu */}
       {ctxMenu&&(
-        <div style={{position:'fixed',inset:0,zIndex:300,display:'flex',alignItems:'flex-end'}} onClick={()=>setCtxMenu(false)}>
-          <div style={{width:'100%',maxWidth:480,margin:'0 auto',background:'#fff',borderRadius:'16px 16px 0 0',padding:'8px 0 calc(env(safe-area-inset-bottom,0px)+12px)'}} onClick={e=>e.stopPropagation()}>
-            <div style={{width:32,height:3,borderRadius:2,background:'#E0E2EC',margin:'0 auto 10px'}}/>
-            <div style={{padding:'4px 0 8px 16px',fontSize:11,fontWeight:700,color:'#B0B8CC',letterSpacing:'.05em',textTransform:'uppercase' as const}}>{task.name.length>20?task.name.slice(0,20)+'…':task.name}</div>
+        <div style={{position:'fixed',inset:0,zIndex:300}} onClick={()=>setCtxMenu(false)}>
+          <div style={{
+            position:'absolute',
+            top: (ref.current?.getBoundingClientRect().top||0) > window.innerHeight/2
+              ? (ref.current?.getBoundingClientRect().top||0) - 10
+              : (ref.current?.getBoundingClientRect().bottom||0) + 10,
+            left: 16,
+            right: 16,
+            maxWidth: 280,
+            transform: (ref.current?.getBoundingClientRect().top||0) > window.innerHeight/2 ? 'translateY(-100%)' : 'none',
+            background:'#fff',
+            borderRadius:16,
+            boxShadow:'0 8px 40px rgba(26,29,46,.18),0 2px 8px rgba(26,29,46,.10)',
+            overflow:'hidden',
+            zIndex:301,
+          }} onClick={e=>e.stopPropagation()}>
+            {/* Task name label */}
+            <div style={{padding:'10px 14px 6px',fontSize:12,fontWeight:600,color:'#8890A8',borderBottom:'.5px solid #F2F3F9',overflow:'hidden',textOverflow:'ellipsis' as const,whiteSpace:'nowrap' as const}}>
+              {task.name.length>28?task.name.slice(0,28)+'…':task.name}
+            </div>
             {/* Pin */}
-            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{onPin(task.id);setCtxMenu(false);}}>
-              <div style={{width:36,height:36,borderRadius:10,background:'rgba(123,107,224,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4"/><line x1="7" y1="5" x2="17" y2="5"/></svg>
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 14px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer',borderBottom:'.5px solid #F2F3F9'}} onClick={()=>{onPin(task.id);setCtxMenu(false);}}>
+              <div style={{width:30,height:30,borderRadius:8,background:'rgba(123,107,224,.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round"><path d="M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4"/><line x1="7" y1="5" x2="17" y2="5"/></svg>
               </div>
-              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500}}>{task.pinned?'取消置頂':'置頂'}</span>
-              {task.pinned&&<div style={{marginLeft:'auto',width:8,height:8,borderRadius:'50%',background:'#7B6BE0'}}/>}
+              <span style={{fontSize:14,color:'#1A1D2E',fontWeight:500,flex:1}}>{task.pinned?'取消置頂':'置頂'}</span>
+              {task.pinned&&<div style={{width:7,height:7,borderRadius:'50%',background:'#7B6BE0',flexShrink:0}}/>}
             </button>
-            {/* Priority */}
-            <div style={{display:'flex',alignItems:'center',gap:12,padding:'10px 20px'}}>
-              <div style={{width:36,height:36,borderRadius:10,background:'rgba(245,200,66,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill={task.priority!=='none'?PRI_BAR[task.priority]:'none'} stroke={task.priority!=='none'?PRI_BAR[task.priority]:'#C8CCE0'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21V4M4 4L18 4 14 9 18 14 4 14Z"/></svg>
+            {/* Priority dots */}
+            <div style={{display:'flex',alignItems:'center',gap:10,padding:'11px 14px',borderBottom:'.5px solid #F2F3F9'}}>
+              <div style={{width:30,height:30,borderRadius:8,background:'rgba(245,196,66,.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill={task.priority!=='none'?PRI_BAR[task.priority]:'none'} stroke={task.priority!=='none'?PRI_BAR[task.priority]:'#C8C0A0'} strokeWidth="1.5" strokeLinecap="round"><path d="M4 21V4M4 4L18 4 14 9 18 14 4 14Z"/></svg>
               </div>
-              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500,flex:1}}>優先級</span>
-              <div style={{display:'flex',gap:10}}>
-                {([['high','#E8706A'],['medium','#F5C842'],['low','#72C48A'],['none','#E0E2EC']] as [Task['priority'],string][]).map(([v,c])=>(
-                  <button key={v} style={{width:28,height:28,borderRadius:'50%',background:c,border:task.priority===v?'3px solid #1A1D2E':'3px solid transparent',cursor:'pointer'}} onClick={(e)=>{e.stopPropagation();onPriority(task.id,v as Task['priority']);setCtxMenu(false);}}/>
+              <span style={{fontSize:14,color:'#1A1D2E',fontWeight:500,flex:1}}>優先級</span>
+              <div style={{display:'flex',gap:8,flexShrink:0}}>
+                {([['high','#E8706A'],['medium','#F5C842'],['low','#72C48A'],['none','#E2E4EE']] as [Task['priority'],string][]).map(([v,c])=>(
+                  <button key={v} style={{width:24,height:24,borderRadius:'50%',background:c,border:task.priority===v?'2.5px solid #1A1D2E':'2.5px solid transparent',cursor:'pointer',flexShrink:0}} onClick={e=>{e.stopPropagation();onPriority(task.id,v as Task['priority']);setCtxMenu(false);}}/>
                 ))}
               </div>
             </div>
             {/* Date */}
-            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{setCtxMenu(false);onOpen(task.id);}}>
-              <div style={{width:36,height:36,borderRadius:10,background:'rgba(107,158,224,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B9EE0" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 14px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer',borderBottom:'.5px solid #F2F3F9'}} onClick={()=>{setCtxMenu(false);onOpen(task.id);}}>
+              <div style={{width:30,height:30,borderRadius:8,background:'rgba(107,158,224,.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B9EE0" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
-              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500}}>{task.dueDate?fmtDue(task.dueDate):'設定時間'}</span>
+              <span style={{fontSize:14,color:'#1A1D2E',fontWeight:500,flex:1}}>{task.dueDate?fmtDue(task.dueDate):'設定時間'}</span>
             </button>
             {/* Move to list */}
-            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{setCtxMenu(false);onPickList(task.id);}}>
-              <div style={{width:36,height:36,borderRadius:10,background:'rgba(123,107,224,.08)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 14px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer',borderBottom:'.5px solid #F2F3F9'}} onClick={()=>{setCtxMenu(false);onPickList(task.id);}}>
+              <div style={{width:30,height:30,borderRadius:8,background:'rgba(123,107,224,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
               </div>
-              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500,flex:1}}>移動至清單</span>
-              <span style={{fontSize:12,color:'#B0B8CC'}}>{lists.find(l=>l.id===task.listId)?.name||''}</span>
+              <span style={{fontSize:14,color:'#1A1D2E',fontWeight:500,flex:1}}>移動至清單</span>
+              <span style={{fontSize:12,color:'#B0B8CC',flexShrink:0}}>{lists.find(l=>l.id===task.listId)?.name||''}</span>
             </button>
             {/* Delete */}
-            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{onDelete(task.id);setCtxMenu(false);}}>
-              <div style={{width:36,height:36,borderRadius:10,background:'rgba(232,112,106,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8706A" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 14px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{onDelete(task.id);setCtxMenu(false);}}>
+              <div style={{width:30,height:30,borderRadius:8,background:'rgba(232,112,106,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8706A" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
               </div>
-              <span style={{fontSize:15,color:'#E8706A',fontWeight:500}}>刪除</span>
+              <span style={{fontSize:14,color:'#E8706A',fontWeight:500}}>刪除</span>
             </button>
           </div>
         </div>
