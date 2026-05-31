@@ -12,9 +12,11 @@ function getDate(prop: any): string | null { return prop?.date?.start || null; }
 function getCheck(prop: any): boolean { return prop?.checkbox || false; }
 function getRelationId(prop: any): string | null { return prop?.relation?.[0]?.id || null; }
 
+// Color name → hex mapping (Notion stores color names as Select options)
 const COLOR_MAP: Record<string, string> = {
   coral: '#F0A8A0', amber: '#F5D080', teal: '#80D5B8', purple: '#B8AEFF',
   indigo: '#7B6BE0', blue: '#7BB8E8', red: '#E8706A', gray: '#C8CCD8',
+  // fallbacks for hex values stored directly
   '#F0A8A0': '#F0A8A0', '#F5D080': '#F5D080', '#80D5B8': '#80D5B8',
   '#B8AEFF': '#B8AEFF', '#7B6BE0': '#7B6BE0', '#7BB8E8': '#7BB8E8',
   '#E8706A': '#E8706A', '#C8CCD8': '#C8CCD8',
@@ -25,9 +27,23 @@ const ICON_MAP: Record<string, string> = {
   'shopping-cart': 'shopping-cart', plane: 'plane', cash: 'banknote', banknote: 'banknote',
 };
 
-function resolveColor(val: string): string { return COLOR_MAP[val] || val || '#B8AEFF'; }
-function resolveIcon(val: string): string { return ICON_MAP[val] || val || 'folder'; }
+function resolveColor(val: string): string {
+  return COLOR_MAP[val] || val || '#B8AEFF';
+}
+function resolveIcon(val: string): string {
+  return ICON_MAP[val] || val || 'folder';
+}
+function resolveDate(d: string | null | undefined): string | null {
+  if (!d) return null;
+  const today = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const fmt = (dt: Date) => dt.getFullYear() + '-' + pad(dt.getMonth()+1) + '-' + pad(dt.getDate());
+  if (d === 'today') return fmt(today);
+  if (d === 'tomorrow') { const t = new Date(today); t.setDate(t.getDate()+1); return fmt(t); }
+  return d;
+}
 
+// ── LISTS ──
 export async function getLists(): Promise<TodoList[]> {
   const res = await notion.databases.query({ database_id: LISTS_DB });
   return res.results.map((p: any) => ({
@@ -39,6 +55,7 @@ export async function getLists(): Promise<TodoList[]> {
 }
 
 export async function createList(data: { name: string; icon: string; color: string }): Promise<TodoList> {
+  // Store the raw value names in Notion
   const page = await notion.pages.create({
     parent: { database_id: LISTS_DB },
     properties: {
@@ -62,6 +79,7 @@ export async function deleteList(id: string) {
   await notion.pages.update({ page_id: id, archived: true });
 }
 
+// ── TASKS ──
 function mapTask(p: any, listsMap: Map<string, TodoList>): Task {
   const listId = getRelationId(getProp(p, 'List')) || '';
   const list = listsMap.get(listId);
@@ -94,12 +112,19 @@ export async function getTasks(): Promise<Task[]> {
       ],
     }),
   ]);
+
   const listsMap = new Map<string, TodoList>(
     listsRes.results.map((p: any) => [
       p.id,
-      { id: p.id, name: getText(getProp(p, 'Name')), icon: resolveIcon(getSelect(getProp(p, 'Icon'))), color: resolveColor(getSelect(getProp(p, 'Color'))) },
+      {
+        id: p.id,
+        name: getText(getProp(p, 'Name')),
+        icon: resolveIcon(getSelect(getProp(p, 'Icon'))),
+        color: resolveColor(getSelect(getProp(p, 'Color'))),
+      },
     ])
   );
+
   const all = tasksRes.results.map((p: any) => mapTask(p, listsMap));
   const parents = all.filter((t: Task) => !t.parentTaskId);
   const children = all.filter((t: Task) => t.parentTaskId);
@@ -146,9 +171,10 @@ export async function createTask(data: {
     Pinned: { checkbox: data.pinned || false },
   };
   if (data.listId) props.List = { relation: [{ id: data.listId }] };
-  if (data.dueDate) props.DueDate = { date: { start: data.dueDate } };
+  const resolvedDue = resolveDate(data.dueDate); if (resolvedDue) props.DueDate = { date: { start: resolvedDue } };
   if (data.notes) props.Notes = { rich_text: [{ text: { content: data.notes } }] };
   if (data.parentTaskId) props.ParentTask = { relation: [{ id: data.parentTaskId }] };
+
   const page = await notion.pages.create({ parent: { database_id: TASKS_DB }, properties: props }) as any;
   return {
     id: page.id, name: data.name, status: 'todo',
@@ -168,7 +194,7 @@ export async function updateTask(id: string, data: {
   if (data.status !== undefined) props.Status = { select: { name: data.status } };
   if (data.priority !== undefined) props.Priority = { select: { name: data.priority } };
   if (data.listId !== undefined) props.List = { relation: data.listId ? [{ id: data.listId }] : [] };
-  if (data.dueDate !== undefined) props.DueDate = data.dueDate ? { date: { start: data.dueDate } } : { date: null };
+  if (data.dueDate !== undefined) { const rd = resolveDate(data.dueDate); props.DueDate = rd ? { date: { start: rd } } : { date: null }; }
   if (data.pinned !== undefined) props.Pinned = { checkbox: data.pinned };
   if (data.notes !== undefined) props.Notes = { rich_text: [{ text: { content: data.notes } }] };
   await notion.pages.update({ page_id: id, properties: props });
@@ -185,3 +211,4 @@ export async function completeSubTasks(subTaskIds: string[]): Promise<void> {
     )
   );
 }
+

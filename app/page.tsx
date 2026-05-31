@@ -95,15 +95,18 @@ function Sheet({ children, onClose, minH=0.4 }: { children: React.ReactNode; onC
 }
 
 // ── Task Card ──
-function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub }:{
+function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub, onEditName }:{
   task:Task; lists:TodoList[];
   onToggle:(id:string,subs:string[])=>void;
   onOpen:(id:string)=>void;
   onDelete:(id:string)=>void;
   onPin:(id:string)=>void;
   onToggleSub:(tid:string,sid:string)=>void;
+  onEditName:(id:string,name:string)=>void;
 }) {
   const [swX, setSwX] = useState(0);
+  const [editing, setEditing] = useState(false);
+  const [editVal, setEditVal] = useState('');
   const ref = useRef<HTMLDivElement>(null);
   const startX = useRef(0);
   const startY = useRef(0);
@@ -115,7 +118,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
   const chipTx = ['#6B5EE0','#92600A','#2E7D32','#4527A0'];
   const ci = Math.max(0, lists.findIndex(l=>l.id===task.listId)) % 4;
 
-  const SNAP = 90; // snap open distance
+  const SNAP = 72;
 
   const onTS = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -126,12 +129,12 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
     const dx = e.touches[0].clientX - startX.current;
     const dy = Math.abs(e.touches[0].clientY - startY.current);
     if (!isHoriz.current) {
-      if (Math.abs(dx) > dy && Math.abs(dx) > 4) isHoriz.current = true;
-      else if (dy > Math.abs(dx) && dy > 4) return; // vertical scroll wins
+      if (Math.abs(dx) > dy && Math.abs(dx) > 5) isHoriz.current = true;
+      else if (dy > Math.abs(dx) + 3) return;
     }
     if (!isHoriz.current) return;
     e.preventDefault();
-    const newX = Math.max(-SNAP, Math.min(0, swX + dx * 0.6));
+    const newX = Math.max(-SNAP, Math.min(0, swX + dx));
     startX.current = e.touches[0].clientX;
     setSwX(newX);
   };
@@ -159,13 +162,9 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
 
   return (
     <div style={{margin:'0 14px 8px',position:'relative',height:'auto'}}>
-      {/* action bg — always visible behind card */}
-      <div style={{position:'absolute',inset:0,borderRadius:10,display:'flex',overflow:'hidden'}}>
-        <div style={{flex:1,background:P,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'10px 0 0 10px'}}
-          onClick={()=>{onPin(task.id);setSwX(0);}}>
-          <Ico n={task.pinned?'pin-off':'pin'} size={22} color="white"/>
-        </div>
-        <div style={{width:SNAP,background:'#E87070',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'0 10px 10px 0',flexShrink:0}}
+      {/* action bg — only delete */}
+      <div style={{position:'absolute',inset:0,borderRadius:10,display:'flex',justifyContent:'flex-end',overflow:'hidden'}}>
+        <div style={{width:SNAP,background:'#E87070',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:10,flexShrink:0}}
           onClick={()=>{onDelete(task.id);}}>
           <Ico n="trash" size={22} color="white"/>
         </div>
@@ -179,12 +178,18 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub 
         onTouchEnd={onTE}
         onClick={()=>{ if(Math.abs(swX)>5){setSwX(0);return;} onOpen(task.id); }}
       >
-        {task.pinned && <div style={{position:'absolute',top:8,right:10,zIndex:1}}><Ico n="pin" size={11} color="#C0B4FF"/></div>}
         <div style={{width:3,flexShrink:0,borderRadius:'3px 0 0 3px',background:PRI_BAR[task.priority]||'transparent'}}/>
         <div style={{flex:1,padding:'11px 13px',minWidth:0}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <button style={{width:18,height:18,borderRadius:'50%',border:'1.5px solid #D0C8FF',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggle(task.id,task.subTasks.map(s=>s.id));}}/>
-            <span style={{fontSize:14,color:'#1A1D2E',flex:1,fontWeight:500,lineHeight:1.3,wordBreak:'break-word' as const}}>{task.name}</span>
+            {editing ? (
+              <input autoFocus style={{flex:1,border:'none',outline:'none',fontSize:14,fontWeight:500,color:'#1A1D2E',background:'transparent',caretColor:'#7B6BE0',padding:0}} value={editVal} onChange={e=>setEditVal(e.target.value)} onBlur={()=>{if(editVal.trim()&&editVal!==task.name)onEditName(task.id,editVal.trim());setEditing(false);}} onKeyDown={e=>{if(e.key==='Enter'){if(editVal.trim())onEditName(task.id,editVal.trim());setEditing(false);}if(e.key==='Escape')setEditing(false);}} onClick={e=>e.stopPropagation()}/>
+            ) : (
+              <span style={{fontSize:14,color:'#1A1D2E',flex:1,fontWeight:500,lineHeight:1.3,wordBreak:'break-word' as const}} onDoubleClick={e=>{e.stopPropagation();setEditing(true);setEditVal(task.name);}}>{task.name}</span>
+            )}
+            <button style={{width:28,height:28,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,background:'none',border:'none',marginRight:-4}} onClick={e=>{e.stopPropagation();onPin(task.id);}}>
+              <Ico n="pin" size={14} color={task.pinned?'#7B6BE0':'#D0D4E0'}/>
+            </button>
           </div>
           {(list||task.dueDate) && (
             <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4,paddingLeft:26}}>
@@ -276,6 +281,18 @@ function SubTasksSection({ taskId, subTasks, onToggle, onAdd, onEditSub }:{
   );
 }
 
+
+// ── Detail title (editable) ──
+function DetailTitle({ name, done, onSave }:{ name:string; done:boolean; onSave:(n:string)=>void }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(name);
+  useEffect(()=>setVal(name),[name]);
+  if (editing) return (
+    <input autoFocus style={{flex:1,border:'none',outline:'none',fontSize:20,fontWeight:700,color:'#1A1D2E',background:'transparent',caretColor:'#7B6BE0',padding:0,lineHeight:1.3,margin:0}} value={val} onChange={e=>setVal(e.target.value)} onBlur={()=>{if(val.trim()&&val!==name)onSave(val.trim());setEditing(false);}} onKeyDown={e=>{if(e.key==='Enter'){if(val.trim())onSave(val.trim());setEditing(false);}if(e.key==='Escape')setEditing(false);}}/>
+  );
+  return <h1 style={{fontSize:20,fontWeight:700,color:done?'#A8AEBB':'#1A1D2E',textDecoration:done?'line-through':'none',flex:1,lineHeight:1.3,margin:0,cursor:'text'}} onClick={()=>{setEditing(true);setVal(name);}}>{name}</h1>;
+}
+
 type Tab = 'today'|'all'|'lists'|'cal';
 type PF = 'date'|'list'|'pri'|null;
 
@@ -337,6 +354,10 @@ export default function App() {
   const editSub=async(sid:string,name:string)=>{
     setTasks(p=>p.map(t=>({...t,subTasks:t.subTasks.map(s=>s.id===sid?{...s,name}:s)})));
     await fetch(`/api/tasks/${sid}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+  };
+  const editTaskName=async(id:string,name:string)=>{
+    setTasks(p=>p.map(x=>x.id===id?{...x,name}:x));
+    await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
   };
   const deleteTask=async(id:string)=>{
     const t=tasks.find(x=>x.id===id);if(!t)return;
@@ -452,7 +473,7 @@ export default function App() {
     <TaskCard key={t.id} task={t} lists={lists}
       onToggle={toggleDone}
       onOpen={id=>{setPrevTab(from==='ld'?'lists':from as Tab);openDetail(id);}}
-      onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub}/>
+      onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub} onEditName={editTaskName}/>
   );
 
   if(loading) return (
@@ -474,14 +495,14 @@ export default function App() {
         <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',background:'#F2F3F9'}}>
           <div style={{background:'#fff',paddingTop:'env(safe-area-inset-top,44px)',flexShrink:0,borderBottom:'.5px solid #ECEEF5'}}>
             <div style={{padding:'0 18px 14px'}}>
-              <button style={{display:'flex',alignItems:'center',gap:4,marginBottom:10,border:'none',background:'none',padding:0}} onClick={()=>setDetailId(null)}>
-                <Ico n="arrow-left" size={18} color={P}/><span style={{fontSize:13,color:P,fontWeight:500}}>{prevTab==='today'?'今日':prevTab==='all'?'所有':'清單'}</span>
+              <button style={{display:'flex',alignItems:'center',gap:6,marginBottom:10,border:'none',background:'none',padding:'8px 12px 8px 0',margin:'0 0 6px -4px'}} onClick={()=>setDetailId(null)}>
+                <Ico n="arrow-left" size={22} color={P}/><span style={{fontSize:15,color:P,fontWeight:600}}>{prevTab==='today'?'今日':prevTab==='all'?'所有':'清單'}</span>
               </button>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 <button style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${detTask.status==='done'?'#C0BCCF':'#D0C8FF'}`,background:detTask.status==='done'?'#C0BCCF':'#fff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onClick={()=>toggleDone(detTask.id,detTask.subTasks.map(s=>s.id))}>
                   {detTask.status==='done'&&<Ico n="check" size={11} color="#E8EAF0"/>}
                 </button>
-                <h1 style={{fontSize:20,fontWeight:700,color:detTask.status==='done'?'#A8AEBB':'#1A1D2E',textDecoration:detTask.status==='done'?'line-through':'none',flex:1,lineHeight:1.3,margin:0}}>{detTask.name}</h1>
+                <DetailTitle name={detTask.name} done={detTask.status==='done'} onSave={name=>editTaskName(detTask.id,name)}/>
               </div>
             </div>
           </div>
