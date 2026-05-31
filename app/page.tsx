@@ -653,7 +653,7 @@ export default function App() {
             </div>
             <div style={{flex:1,overflowY:'auto',paddingTop:10,paddingBottom:140,background:'#F2F3F9'}}>
               {lt.filter(t=>t.status!=='done').map(t=>mkCard(t,'ld'))}
-              {lt.filter(t=>t.status==='done').map(t=>mkCard(t,'ld'))}
+              {(ldFilter==='done'||ldId==='__done__')&&lt.filter(t=>t.status==='done').map(t=>mkCard(t,'ld'))}
               {lt.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>此清單沒有任務</div>}
             </div>
             <Fab onClick={openAddGeneric}/>
@@ -674,7 +674,6 @@ export default function App() {
                   <div style={{flex:1,height:.5,background:'#D4D6E4'}}/><span style={{fontSize:9.5,color:'#B0B8CC',whiteSpace:'nowrap' as const,display:'flex',alignItems:'center',gap:3}}><Ico n="list" size={9} color="#B0B8CC"/>今日任務</span><div style={{flex:1,height:.5,background:'#D4D6E4'}}/>
                 </div>
                 {getTodayTasks().filter(t=>!t.pinned&&t.status!=='done').map(t=>mkCard(t,'today'))}
-                {getTodayTasks().filter(t=>t.status==='done').map(t=>mkCard(t,'today'))}
                 {getTodayTasks().length===0&&pinnedTasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>今天沒有任務，點 + 新增</div>}
               </div>
             </div>
@@ -684,7 +683,7 @@ export default function App() {
               <Hdr title="全部" sub="所有任務"/>
               <div style={scrollStyle}>
                 {pinnedTasks.length>0&&(<><div style={{...secLbl,gap:4}}><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='#C0B4FF' strokeWidth='2' strokeLinecap='round'><path d='M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4'/><line x1='7' y1='5' x2='17' y2='5'/></svg>置頂<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=>mkCard(t,'all'))}</>)}
-                {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>t.status!=='done').map(t=>mkCard(t,'all'))}{lt.filter(t=>t.status==='done').map(t=>mkCard(t,'all'))}</div>);})}
+                {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>t.status!=='done').map(t=>mkCard(t,'all'))}</div>);})}
                 {tasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>目前沒有任何任務</div>}
               </div>
             </div>
@@ -756,7 +755,7 @@ export default function App() {
                     <Ico n="plus" size={14} color={P}/>
                   </button>
                 </div>
-                {getTasksForDay(calYr,calMo+1,calSel).map(t=>mkCard(t,'cal'))}
+                {getTasksForDay(calYr,calMo+1,calSel).filter(t=>t.status!=='done').map(t=>mkCard(t,'cal'))}
                 {getTasksForDay(calYr,calMo+1,calSel).length===0&&<div style={{textAlign:'center',padding:'20px',color:'#B0B8CC',fontSize:13}}>這天沒有任務</div>}
               </div>
             </div>
