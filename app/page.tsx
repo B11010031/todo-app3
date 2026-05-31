@@ -556,9 +556,19 @@ export default function App() {
     setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setEditListId(null);
   };
   const deleteList=async(id:string)=>{
-    setLists(p=>p.filter(l=>l.id!==id));
+    const l=lists.find(x=>x.id===id);
+    const taskCnt=tasks.filter(t=>t.listId===id).length;
+    const msg=taskCnt>0?`確定刪除「${l?.name}」清單？
+裡面的 ${taskCnt} 個任務也會一起刪除。`:`確定刪除「${l?.name}」清單？`;
+    if(!window.confirm(msg))return;
+    // optimistic
+    setLists(p=>p.filter(x=>x.id!==id));
+    setTasks(p=>p.filter(t=>t.listId!==id));
     if(ldId===id)setLdId(null);
     showToast('清單已刪除');
+    // delete tasks first, then list
+    const taskIds=tasks.filter(t=>t.listId===id).map(t=>t.id);
+    await Promise.all(taskIds.map(tid=>fetch(`/api/tasks/${tid}`,{method:'DELETE'})));
     await fetch(`/api/lists/${id}`,{method:'DELETE'});
   };
 
@@ -707,7 +717,7 @@ export default function App() {
                 {(['all','today','hi','done'] as const).map((f,i)=>(
                   <button key={f} style={{flexShrink:0,padding:'4px 12px',borderRadius:20,fontSize:11,fontWeight:600,cursor:'pointer',border:'none',background:ldFilter===f?'white':'rgba(255,255,255,.2)',color:ldFilter===f?P:'rgba(255,255,255,.88)'}} onClick={()=>setLdFilter(f)}>{['全部','今日','重要','完成'][i]}</button>
                 ))}
-                {!isSpecial&&<button style={{flexShrink:0,marginLeft:'auto',width:28,height:28,borderRadius:'50%',background:'rgba(255,255,255,.18)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onClick={()=>{if(confirm('確定刪除此清單？'))deleteList(ldId!);}}>
+                {!isSpecial&&<button style={{flexShrink:0,marginLeft:'auto',width:28,height:28,borderRadius:'50%',background:'rgba(255,255,255,.18)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onClick={()=>deleteList(ldId!)}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
                 </button>}
               </div>
@@ -744,7 +754,7 @@ export default function App() {
               <Hdr title="全部" sub="所有任務"/>
               <div style={scrollStyle}>
                 {pinnedTasks.length>0&&(<><div style={{...secLbl,gap:4}}><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='#C0B4FF' strokeWidth='2' strokeLinecap='round'><path d='M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4'/><line x1='7' y1='5' x2='17' y2='5'/></svg>置頂<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=>mkCard(t,'all'))}</>)}
-                {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>shouldShow(t)).map(t=>mkCard(t,'all'))}</div>);})}
+                {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned&&shouldShow(t));if(!lt.length)return null;return(<div key={l.id}><div style={{...secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.map(t=>mkCard(t,'all'))}</div>);})}
                 {tasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>目前沒有任何任務</div>}
               </div>
             </div>
