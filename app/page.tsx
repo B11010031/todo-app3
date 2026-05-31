@@ -22,7 +22,7 @@ function Ico({ n, size=20, color='currentColor' }: { n:string; size?:number; col
     pin:'M12 17v5M8.5 4.5l7 7M5 15l7-7 3 3-7 7-3-3z',
     'pin-off':'M15 4l5 5-3 3-5-5 3-3zM9 9l-6 6 3 3 4-4M3 21l4-4',
     trash:'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6',
-    flag:'M4 15V5l8 2 4-2v10l-4 2-8-2z',
+    flag:'M4 21V4M4 4L18 4 14 9 18 14 4 14Z',
     clock:'M12 8v4l3 3M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z',
     star:'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
     checklist:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
@@ -188,7 +188,10 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
               <span style={{fontSize:14,color:'#1A1D2E',flex:1,fontWeight:500,lineHeight:1.3,wordBreak:'break-word' as const}} onDoubleClick={e=>{e.stopPropagation();setEditing(true);setEditVal(task.name);}}>{task.name}</span>
             )}
             <button style={{width:28,height:28,borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:'none',marginRight:-4,background:task.pinned?'rgba(123,107,224,.12)':'none'}} onClick={e=>{e.stopPropagation();onPin(task.id);}}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill={task.pinned?'#7B6BE0':'none'} stroke={task.pinned?'#7B6BE0':'#C8CCE0'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17v5M8.5 4.5l7 7M5 15l7-7 3 3-7 7-3-3z"/></svg>
+              {task.pinned
+                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="#7B6BE0" stroke="none"><circle cx="12" cy="5" r="3"/><rect x="11" y="8" width="2" height="7" rx="1" fill="#7B6BE0"/><line x1="12" y1="15" x2="12" y2="22" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round"/><rect x="7" y="7" width="10" height="3" rx="1.5" fill="#7B6BE0"/></svg>
+                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="3" stroke="#D0D4E0" strokeWidth="1.5"/><rect x="11" y="8" width="2" height="7" rx="1" fill="#D0D4E0"/><line x1="12" y1="15" x2="12" y2="22" stroke="#D0D4E0" strokeWidth="2" strokeLinecap="round"/><rect x="7" y="7" width="10" height="3" rx="1.5" fill="#D0D4E0"/></svg>
+              }
             </button>
           </div>
           {(list||task.dueDate) && (
@@ -705,7 +708,7 @@ export default function App() {
                 <span style={{fontSize:12,fontWeight:600,color:addLid?P:'#9CA4BC'}}>{addLid?lists.find(l=>l.id===addLid)?.name:'清單'}</span>
               </button>
               <button style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',height:32,borderRadius:20,border:`1px solid ${addPri!=='none'?P:'#E8EAF0'}`,background:addPri!=='none'?'rgba(123,107,224,.08)':'#F8F9FF',flexShrink:0}} onClick={()=>openPicker('pri',null)}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill={addPri!=='none'?PRI_BAR[addPri]:'none'} stroke={addPri!=='none'?PRI_BAR[addPri]:'#9CA4BC'} strokeWidth="2" strokeLinecap="round"><path d="M4 15V5l8 2 4-2v10l-4 2-8-2z"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={addPri!=='none'?PRI_BAR[addPri]:'none'} stroke={addPri!=='none'?PRI_BAR[addPri]:'#9CA4BC'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21V4"/><path d="M4 4 L18 4 L14 9 L18 14 L4 14 Z" strokeWidth="1.5"/></svg>
                 <span style={{fontSize:12,fontWeight:600,color:addPri!=='none'?P:'#9CA4BC'}}>{addPri!=='none'?PRI_LABEL[addPri]:'優先'}</span>
               </button>
               <div style={{flex:1}}/>
