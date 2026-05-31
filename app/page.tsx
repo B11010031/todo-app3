@@ -657,6 +657,7 @@ export default function App() {
               {lt.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>此清單沒有任務</div>}
             </div>
             <Fab onClick={openAddGeneric}/>
+            <Nav/>
           </div>
         );
       })()}
