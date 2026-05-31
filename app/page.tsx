@@ -95,7 +95,7 @@ function Sheet({ children, onClose, minH=0.4 }: { children: React.ReactNode; onC
 }
 
 // ── Task Card ──
-function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub, onEditName }:{
+function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub, onEditName, onPriority, onPickList }:{
   task:Task; lists:TodoList[];
   onToggle:(id:string,subs:string[])=>void;
   onOpen:(id:string)=>void;
@@ -103,14 +103,18 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
   onPin:(id:string)=>void;
   onToggleSub:(tid:string,sid:string)=>void;
   onEditName:(id:string,name:string)=>void;
+  onPriority:(id:string,pri:Task['priority'])=>void;
+  onPickList:(id:string)=>void;
 }) {
   const [swX, setSwX] = useState(0);
   const [editing, setEditing] = useState(false);
   const [editVal, setEditVal] = useState('');
+  const [ctxMenu, setCtxMenu] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const startX = useRef(0);
   const startY = useRef(0);
   const isHoriz = useRef(false);
+  const longPressTimer = useRef<NodeJS.Timeout|null>(null);
   const isDone = task.status === 'done';
   const list = lists.find(l=>l.id===task.listId);
   const subDone = task.subTasks.filter(s=>s.done).length;
@@ -124,6 +128,9 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
     isHoriz.current = false;
+    longPressTimer.current = setTimeout(()=>{
+      if(!isHoriz.current){ setCtxMenu(true); }
+    }, 500);
   };
   const onTM = (e: React.TouchEvent) => {
     const dx = e.touches[0].clientX - startX.current;
@@ -139,6 +146,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
     setSwX(newX);
   };
   const onTE = () => {
+    if(longPressTimer.current){ clearTimeout(longPressTimer.current); longPressTimer.current=null; }
     if (!isHoriz.current) return;
     if (swX < -SNAP/2) setSwX(-SNAP);
     else setSwX(0);
@@ -198,7 +206,7 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
           </div>
           {(list||task.dueDate) && (
             <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4,paddingLeft:26}}>
-              {list && <span style={{fontSize:10,padding:'1px 7px',borderRadius:20,fontWeight:600,background:chipBg[ci],color:chipTx[ci],whiteSpace:'nowrap' as const}}>{list.name}</span>}
+              {list && <span style={{fontSize:10,padding:'1px 7px',borderRadius:20,fontWeight:600,background:chipBg[ci],color:chipTx[ci],whiteSpace:'nowrap' as const,cursor:'pointer'}} onClick={e=>{e.stopPropagation();onPickList(task.id);}}>{list.name}</span>}
               {task.dueDate && <span style={{fontSize:10,color:'#B0B8CC',display:'flex',alignItems:'center',gap:2,whiteSpace:'nowrap' as const}}><Ico n="clock" size={10} color="#B0B8CC"/>{fmtDue(task.dueDate)}</span>}
             </div>
           )}
@@ -217,6 +225,57 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
           )}
         </div>
       </div>
+      {/* Context menu */}
+      {ctxMenu&&(
+        <div style={{position:'fixed',inset:0,zIndex:300,display:'flex',alignItems:'flex-end'}} onClick={()=>setCtxMenu(false)}>
+          <div style={{width:'100%',maxWidth:480,margin:'0 auto',background:'#fff',borderRadius:'16px 16px 0 0',padding:'8px 0 calc(env(safe-area-inset-bottom,0px)+12px)'}} onClick={e=>e.stopPropagation()}>
+            <div style={{width:32,height:3,borderRadius:2,background:'#E0E2EC',margin:'0 auto 10px'}}/>
+            <div style={{padding:'4px 0 8px 16px',fontSize:11,fontWeight:700,color:'#B0B8CC',letterSpacing:'.05em',textTransform:'uppercase' as const}}>{task.name.length>20?task.name.slice(0,20)+'…':task.name}</div>
+            {/* Pin */}
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{onPin(task.id);setCtxMenu(false);}}>
+              <div style={{width:36,height:36,borderRadius:10,background:'rgba(123,107,224,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4"/><line x1="7" y1="5" x2="17" y2="5"/></svg>
+              </div>
+              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500}}>{task.pinned?'取消置頂':'置頂'}</span>
+              {task.pinned&&<div style={{marginLeft:'auto',width:8,height:8,borderRadius:'50%',background:'#7B6BE0'}}/>}
+            </button>
+            {/* Priority */}
+            <div style={{display:'flex',alignItems:'center',gap:12,padding:'10px 20px'}}>
+              <div style={{width:36,height:36,borderRadius:10,background:'rgba(245,200,66,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill={task.priority!=='none'?PRI_BAR[task.priority]:'none'} stroke={task.priority!=='none'?PRI_BAR[task.priority]:'#C8CCE0'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21V4M4 4L18 4 14 9 18 14 4 14Z"/></svg>
+              </div>
+              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500,flex:1}}>優先級</span>
+              <div style={{display:'flex',gap:10}}>
+                {([['high','#E8706A'],['medium','#F5C842'],['low','#72C48A'],['none','#E0E2EC']] as [Task['priority'],string][]).map(([v,c])=>(
+                  <button key={v} style={{width:28,height:28,borderRadius:'50%',background:c,border:task.priority===v?'3px solid #1A1D2E':'3px solid transparent',cursor:'pointer'}} onClick={(e)=>{e.stopPropagation();onPriority(task.id,v as Task['priority']);setCtxMenu(false);}}/>
+                ))}
+              </div>
+            </div>
+            {/* Date */}
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{setCtxMenu(false);onOpen(task.id);}}>
+              <div style={{width:36,height:36,borderRadius:10,background:'rgba(107,158,224,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B9EE0" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500}}>{task.dueDate?fmtDue(task.dueDate):'設定時間'}</span>
+            </button>
+            {/* Move to list */}
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{setCtxMenu(false);onPickList(task.id);}}>
+              <div style={{width:36,height:36,borderRadius:10,background:'rgba(123,107,224,.08)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+              </div>
+              <span style={{fontSize:15,color:'#1A1D2E',fontWeight:500,flex:1}}>移動至清單</span>
+              <span style={{fontSize:12,color:'#B0B8CC'}}>{lists.find(l=>l.id===task.listId)?.name||''}</span>
+            </button>
+            {/* Delete */}
+            <button style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'13px 20px',border:'none',background:'none',textAlign:'left' as const,cursor:'pointer'}} onClick={()=>{onDelete(task.id);setCtxMenu(false);}}>
+              <div style={{width:36,height:36,borderRadius:10,background:'rgba(232,112,106,.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8706A" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+              </div>
+              <span style={{fontSize:15,color:'#E8706A',fontWeight:500}}>刪除</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -480,7 +539,10 @@ export default function App() {
     <TaskCard key={t.id} task={t} lists={lists}
       onToggle={toggleDone}
       onOpen={id=>{setPrevTab(from==='ld'?'lists':from as Tab);openDetail(id);}}
-      onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub} onEditName={editTaskName}/>
+      onDelete={deleteTask} onPin={togglePin} onToggleSub={toggleSub} onEditName={editTaskName}
+      onPriority={(id,pri)=>updateField(id,{priority:pri})}
+      onPickList={(id)=>{setPickerTid(id);setPickerField('list');}}
+    />
   );
 
   if(loading) return (
