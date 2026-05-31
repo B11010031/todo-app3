@@ -539,7 +539,7 @@ export default function App() {
   const Nav=()=>(
     <div style={{position:'fixed',bottom:'calc(env(safe-area-inset-bottom,0px) + 16px)',left:'50%',transform:'translateX(-50%)',width:'calc(100% - 40px)',maxWidth:400,display:'flex',background:'rgba(255,255,255,.96)',backdropFilter:'blur(20px)',borderRadius:50,boxShadow:'0 8px 32px rgba(26,29,46,.14)',zIndex:50,padding:'6px 8px'}}>
       {(['today','all','lists','cal'] as Tab[]).map((t,i)=>(
-        <button key={t} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3,border:'none',cursor:'pointer',borderRadius:40,padding:'8px 4px',background:tab===t?'rgba(123,107,224,.12)':'transparent',color:tab===t?P:'#B0B8CC',fontSize:10,fontWeight:tab===t?700:500}} onClick={()=>setTab(t)}>
+        <button key={t} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3,border:'none',cursor:'pointer',borderRadius:40,padding:'8px 4px',background:tab===t&&!ldId?'rgba(123,107,224,.12)':'transparent',color:tab===t&&!ldId?P:'#B0B8CC',fontSize:10,fontWeight:tab===t&&!ldId?700:500}} onClick={()=>{setTab(t);setLdId(null);setDetailId(null);}}>
           <Ico n={['sun','list','grid','calendar'][i]} size={tab===t?22:20} color={tab===t?P:'#B0B8CC'}/>
           <span>{['今日','所有','清單','行事曆'][i]}</span>
         </button>
