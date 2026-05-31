@@ -154,9 +154,16 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
   };
 
   if (isDone) return (
-    <div style={{margin:'0 14px 7px'}}>
-      <div style={{display:'flex',borderRadius:10,background:'#EAEBF0',cursor:'pointer'}} onClick={()=>onOpen(task.id)}>
-        <div style={{width:3,borderRadius:'3px 0 0 3px',background:'#D4D6E0',flexShrink:0}}/>
+    <div style={{margin:'0 14px 8px',position:'relative',userSelect:'none' as const}}>
+      <div style={{position:'absolute',inset:0,borderRadius:10,display:'flex',justifyContent:'flex-end'}}>
+        <div style={{width:72,background:'#E87070',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:10,cursor:'pointer'}} onClick={()=>onDelete(task.id)}>
+          <Ico n="trash" size={20} color="white"/>
+        </div>
+      </div>
+      <div style={{position:'relative',display:'flex',borderRadius:10,background:'#EAEBF0',transform:`translateX(${swX}px)`,willChange:'transform',touchAction:'pan-y'}}
+        onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}
+        onClick={()=>{if(Math.abs(swX)>5){setSwX(0);return;}onOpen(task.id);}}>
+        <div style={{width:4,borderRadius:'10px 0 0 10px',background:'#D4D6E0',flexShrink:0,alignSelf:'stretch'}}/>
         <div style={{flex:1,padding:'10px 12px'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <button style={{width:18,height:18,borderRadius:'50%',background:'#C0BCCF',border:'1.5px solid #C0BCCF',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} onClick={e=>{e.stopPropagation();onToggle(task.id,[]);}}>
