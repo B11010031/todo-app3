@@ -374,6 +374,41 @@ function DetailTitle({ name, done, onSave }:{ name:string; done:boolean; onSave:
   return <h1 style={{fontSize:20,fontWeight:700,color:done?'#A8AEBB':'#1A1D2E',textDecoration:done?'line-through':'none',flex:1,lineHeight:1.3,margin:0,cursor:'text'}} onClick={()=>{setEditing(true);setVal(name);}}>{name}</h1>;
 }
 
+
+// ── Swipeable List Card ──
+function SwipeListCard({ list, taskCount, onOpen, onEdit, onDelete }:{
+  list:TodoList; taskCount:number;
+  onOpen:()=>void; onEdit:()=>void; onDelete:()=>void;
+}) {
+  const [swX, setSwX] = useState(0);
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const isHoriz = useRef(false);
+  const SNAP = 72;
+  const onTS=(e:React.TouchEvent)=>{startX.current=e.touches[0].clientX;startY.current=e.touches[0].clientY;isHoriz.current=false;};
+  const onTM=(e:React.TouchEvent)=>{const dx=e.touches[0].clientX-startX.current;const dy=Math.abs(e.touches[0].clientY-startY.current);if(!isHoriz.current){if(Math.abs(dx)>dy&&Math.abs(dx)>5)isHoriz.current=true;else if(dy>Math.abs(dx)+3)return;}if(!isHoriz.current)return;e.preventDefault();setSwX(Math.max(-SNAP,Math.min(0,swX+dx)));startX.current=e.touches[0].clientX;};
+  const onTE=()=>{if(!isHoriz.current)return;if(swX<-SNAP/2)setSwX(-SNAP);else setSwX(0);};
+  return (
+    <div style={{position:'relative',borderRadius:14,overflow:'hidden',userSelect:'none'}}>
+      <div style={{position:'absolute',inset:0,borderRadius:14,display:'flex',justifyContent:'flex-end'}}>
+        <div style={{width:SNAP,background:'#E87070',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'0 14px 14px 0',cursor:'pointer'}} onClick={onDelete}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+        </div>
+      </div>
+      <div style={{position:'relative',borderRadius:14,padding:'14px 12px',background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',transform:`translateX(${swX}px)`,willChange:'transform',touchAction:'pan-y'}}
+        onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}
+        onClick={()=>{if(Math.abs(swX)>5){setSwX(0);return;}onOpen();}}
+        onContextMenu={e=>{e.preventDefault();onEdit();}}>
+        <div style={{width:30,height:30,borderRadius:9,background:list.color,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}>
+          <Ico n={list.icon||'folder'} size={15} color="white"/>
+        </div>
+        <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E'}}>{list.name}</div>
+        <div style={{fontSize:10,color:'#B0B8CC',marginTop:2}}>{taskCount} 項任務</div>
+      </div>
+    </div>
+  );
+}
+
 type Tab = 'today'|'all'|'lists'|'cal';
 type PF = 'date'|'list'|'pri'|null;
 
@@ -504,6 +539,12 @@ export default function App() {
     }
     setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setEditListId(null);
   };
+  const deleteList=async(id:string)=>{
+    setLists(p=>p.filter(l=>l.id!==id));
+    if(ldId===id)setLdId(null);
+    showToast('清單已刪除');
+    await fetch(`/api/lists/${id}`,{method:'DELETE'});
+  };
 
   const openDetail=(id:string)=>{setDetailId(id);const t=tasks.find(x=>x.id===id);setDetNotes(t?.notes||'');};
   const detTask=tasks.find(t=>t.id===detailId);
@@ -618,11 +659,12 @@ export default function App() {
             </button>
           </div>
           <div style={{position:'fixed',bottom:0,left:0,right:0,maxWidth:480,margin:'0 auto',padding:'12px 14px',paddingBottom:'calc(env(safe-area-inset-bottom,16px) + 12px)',background:'rgba(242,243,249,.92)',backdropFilter:'blur(12px)',display:'flex',gap:10,zIndex:10}}>
-            <button style={{flex:1,height:44,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',background:'#F0F2F8',border:'.5px solid #E0E2EC',fontSize:13,fontWeight:500,color:P}} onClick={()=>setDetailId(null)}>
-              <Ico n="arrow-left" size={15} color={P}/>返回
+            <button style={{flex:2,height:44,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:6,cursor:'pointer',background:detTask.status==='done'?'rgba(123,107,224,.1)':'rgba(123,107,224,.1)',border:'none',fontSize:13,fontWeight:600,color:P}} onClick={()=>toggleDone(detTask.id,detTask.subTasks.map(s=>s.id))}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={P} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/>{detTask.status==='done'?<path d="M9 12l2 2 4-4" stroke={P}/>:<path d="M9 12l2 2 4-4" stroke={P} opacity=".35"/>}</svg>
+              {detTask.status==='done'?'取消完成':'標記完成'}
             </button>
-            <button style={{flex:2,height:44,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:6,cursor:'pointer',background:detTask.status==='done'?'#C0BCCF':P,boxShadow:detTask.status==='done'?'none':'0 4px 14px rgba(123,107,224,.32)',fontSize:13,fontWeight:700,color:'#fff',border:'none'}} onClick={()=>toggleDone(detTask.id,detTask.subTasks.map(s=>s.id))}>
-              <Ico n={detTask.status==='done'?'rotate-ccw':'check'} size={15} color="white"/>{detTask.status==='done'?'復原':'標記完成'}
+            <button style={{flex:1,height:44,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',background:P,boxShadow:'0 4px 14px rgba(123,107,224,.32)',fontSize:13,fontWeight:700,color:'#fff',border:'none'}} onClick={()=>setDetailId(null)}>
+              修改完成
             </button>
           </div>
         </div>
@@ -645,10 +687,13 @@ export default function App() {
                 <div style={{width:32,height:32,borderRadius:10,background:'rgba(255,255,255,.22)',display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n={info.icon} size={16} color="white"/></div>
                 <div style={{flex:1}}><div style={{fontSize:11,color:'rgba(255,255,255,.65)'}}>{lt.filter(t=>t.status!=='done').length} 項任務</div><div style={{fontSize:21,fontWeight:700,color:'#fff'}}>{info.name}</div></div>
               </div>
-              <div style={{display:'flex',gap:6,padding:'0 16px 10px',overflowX:'auto'}}>
+              <div style={{display:'flex',gap:6,padding:'0 16px 10px',overflowX:'auto',alignItems:'center'}}>
                 {(['all','today','hi','done'] as const).map((f,i)=>(
                   <button key={f} style={{flexShrink:0,padding:'4px 12px',borderRadius:20,fontSize:11,fontWeight:600,cursor:'pointer',border:'none',background:ldFilter===f?'white':'rgba(255,255,255,.2)',color:ldFilter===f?P:'rgba(255,255,255,.88)'}} onClick={()=>setLdFilter(f)}>{['全部','今日','重要','完成'][i]}</button>
                 ))}
+                {!isSpecial&&<button style={{flexShrink:0,marginLeft:'auto',width:28,height:28,borderRadius:'50%',background:'rgba(255,255,255,.18)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onClick={()=>{if(confirm('確定刪除此清單？'))deleteList(ldId!);}}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+                </button>}
               </div>
             </div>
             <div style={{flex:1,overflowY:'auto',paddingTop:10,paddingBottom:140,background:'#F2F3F9'}}>
@@ -707,11 +752,7 @@ export default function App() {
                   <button style={{width:22,height:22,borderRadius:7,background:'rgba(123,107,224,.12)',display:'flex',alignItems:'center',justifyContent:'center',border:'none'}} onClick={()=>{setEditListId(null);setNewListName('');setNewListIcon('folder');setNewListColor('#80D5B8');setListSheetOpen(true);}}><Ico n="plus" size={13} color={P}/></button>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,padding:'0 14px'}}>
-                  {lists.map(l=><button key={l.id} style={{borderRadius:14,padding:'14px 12px',background:'#fff',boxShadow:'0 1px 6px rgba(26,29,46,.07)',cursor:'pointer',textAlign:'left',border:'none'}} onClick={()=>{setLdId(l.id);setLdFilter('all');}} onContextMenu={e=>{e.preventDefault();setEditListId(l.id);setNewListName(l.name);setNewListIcon(l.icon||'folder');setNewListColor(l.color);setListSheetOpen(true);}}>
-                    <div style={{width:30,height:30,borderRadius:9,background:l.color,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}><Ico n={l.icon||'folder'} size={15} color="white"/></div>
-                    <div style={{fontSize:13,fontWeight:700,color:'#1A1D2E'}}>{l.name}</div>
-                    <div style={{fontSize:10,color:'#B0B8CC',marginTop:2}}>{tasks.filter(t=>t.listId===l.id&&t.status!=='done').length} 項任務</div>
-                  </button>)}
+                  {lists.map(l=><SwipeListCard key={l.id} list={l} taskCount={tasks.filter(t=>t.listId===l.id&&t.status!=='done').length} onOpen={()=>{setLdId(l.id);setLdFilter('all');}} onEdit={()=>{setEditListId(l.id);setNewListName(l.name);setNewListIcon(l.icon||'folder');setNewListColor(l.color);setListSheetOpen(true);}} onDelete={()=>deleteList(l.id)}/>)}
                   <button style={{gridColumn:'1/-1',borderRadius:14,display:'flex',alignItems:'center',gap:10,padding:'11px 14px',background:'#EAEBF0',cursor:'pointer',border:'none',textAlign:'left'}} onClick={()=>{setLdId('__done__');setLdFilter('all');}}>
                     <div style={{width:30,height:30,borderRadius:9,background:'#C8CCD8',display:'flex',alignItems:'center',justifyContent:'center'}}><Ico n="check" size={15} color="white"/></div>
                     <div><div style={{fontSize:13,fontWeight:700,color:'#8890A0'}}>已完成</div><div style={{fontSize:10,color:'#B0B8CC'}}>{tasks.filter(t=>t.status==='done').length} 項</div></div>
