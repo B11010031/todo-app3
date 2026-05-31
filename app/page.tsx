@@ -187,8 +187,8 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
             ) : (
               <span style={{fontSize:14,color:'#1A1D2E',flex:1,fontWeight:500,lineHeight:1.3,wordBreak:'break-word' as const}} onDoubleClick={e=>{e.stopPropagation();setEditing(true);setEditVal(task.name);}}>{task.name}</span>
             )}
-            <button style={{width:28,height:28,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,background:'none',border:'none',marginRight:-4}} onClick={e=>{e.stopPropagation();onPin(task.id);}}>
-              <Ico n="pin" size={14} color={task.pinned?'#7B6BE0':'#D0D4E0'}/>
+            <button style={{width:28,height:28,borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:'none',marginRight:-4,background:task.pinned?'rgba(123,107,224,.12)':'none'}} onClick={e=>{e.stopPropagation();onPin(task.id);}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={task.pinned?'#7B6BE0':'none'} stroke={task.pinned?'#7B6BE0':'#C8CCE0'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17v5M8.5 4.5l7 7M5 15l7-7 3 3-7 7-3-3z"/></svg>
             </button>
           </div>
           {(list||task.dueDate) && (
@@ -357,6 +357,7 @@ export default function App() {
   };
   const editTaskName=async(id:string,name:string)=>{
     setTasks(p=>p.map(x=>x.id===id?{...x,name}:x));
+    if(id.startsWith('temp-'))return;
     await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
   };
   const deleteTask=async(id:string)=>{
@@ -380,6 +381,7 @@ export default function App() {
   };
   const updateField=async(id:string,data:Record<string,unknown>)=>{
     setTasks(p=>p.map(x=>x.id===id?{...x,...data}:x));
+    if(id.startsWith('temp-'))return;
     await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
   };
   const submitTask=async()=>{
@@ -694,16 +696,18 @@ export default function App() {
               />
             </div>
             <div style={{display:'flex',alignItems:'center',padding:'6px 12px 14px',gap:6,flexWrap:'wrap' as const}}>
-              {[
-                {f:'date' as PF,icon:'clock',label:'時間',active:!!addDue,val:addDue?fmtDue(addDue):''},
-                {f:'list' as PF,icon:'grid',label:'清單',active:!!addLid,val:lists.find(l=>l.id===addLid)?.name||''},
-                {f:'pri' as PF,icon:'flag',label:'優先',active:addPri!=='none',val:addPri!=='none'?PRI_LABEL[addPri]:''},
-              ].map(btn=>(
-                <button key={btn.f!} style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',height:32,borderRadius:20,border:`1px solid ${btn.active?P:'#E8EAF0'}`,background:btn.active?'rgba(123,107,224,.08)':'#F8F9FF',flexShrink:0}} onClick={()=>openPicker(btn.f,null)}>
-                  <Ico n={btn.icon} size={14} color={btn.active?P:'#9CA4BC'}/>
-                  <span style={{fontSize:12,fontWeight:600,color:btn.active?P:'#9CA4BC'}}>{btn.active?btn.val:btn.label}</span>
-                </button>
-              ))}
+              <button style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',height:32,borderRadius:20,border:`1px solid ${addDue?P:'#E8EAF0'}`,background:addDue?'rgba(123,107,224,.08)':'#F8F9FF',flexShrink:0}} onClick={()=>openPicker('date',null)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={addDue?P:'#9CA4BC'} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span style={{fontSize:12,fontWeight:600,color:addDue?P:'#9CA4BC'}}>{addDue?fmtDue(addDue):'時間'}</span>
+              </button>
+              <button style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',height:32,borderRadius:20,border:`1px solid ${addLid?P:'#E8EAF0'}`,background:addLid?'rgba(123,107,224,.08)':'#F8F9FF',flexShrink:0}} onClick={()=>openPicker('list',null)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={addLid?P:'#9CA4BC'} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span style={{fontSize:12,fontWeight:600,color:addLid?P:'#9CA4BC'}}>{addLid?lists.find(l=>l.id===addLid)?.name:'清單'}</span>
+              </button>
+              <button style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',height:32,borderRadius:20,border:`1px solid ${addPri!=='none'?P:'#E8EAF0'}`,background:addPri!=='none'?'rgba(123,107,224,.08)':'#F8F9FF',flexShrink:0}} onClick={()=>openPicker('pri',null)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={addPri!=='none'?PRI_BAR[addPri]:'none'} stroke={addPri!=='none'?PRI_BAR[addPri]:'#9CA4BC'} strokeWidth="2" strokeLinecap="round"><path d="M4 15V5l8 2 4-2v10l-4 2-8-2z"/></svg>
+                <span style={{fontSize:12,fontWeight:600,color:addPri!=='none'?P:'#9CA4BC'}}>{addPri!=='none'?PRI_LABEL[addPri]:'優先'}</span>
+              </button>
               <div style={{flex:1}}/>
               <button style={{height:32,padding:'0 16px',background:P,borderRadius:20,fontSize:13,fontWeight:700,color:'#fff',border:'none',flexShrink:0}} onClick={submitTask}>新增</button>
             </div>
