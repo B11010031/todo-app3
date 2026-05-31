@@ -810,12 +810,24 @@ export default function App() {
               <div style={{fontSize:14,fontWeight:700,color:'#1A1D2E',padding:'4px 16px 10px',borderBottom:'.5px solid #ECEEF5'}}>選取時間</div>
               <div style={{display:'flex',gap:8,flexWrap:'wrap' as const,padding:'12px 16px',borderBottom:'.5px solid #F2F3F9'}}>
                 {[['today','今天'],['tomorrow','明天'],['','清除']].map(([v,l])=>(
-                  <button key={v} style={{padding:'7px 16px',borderRadius:20,fontSize:13,fontWeight:600,border:`1.5px solid ${curDue===v?P:'#E8EAF0'}`,background:curDue===v?P:'white',color:curDue===v?'white':'#6B6F85'}} onClick={()=>setPDate(v)}>{l}</button>
+                  <button key={v} style={{padding:'7px 16px',borderRadius:20,fontSize:13,fontWeight:600,border:`1.5px solid ${curDue===v||(!curDue&&!v)?P:'#E8EAF0'}`,background:curDue===v||(!curDue&&!v)?P:'white',color:curDue===v||(!curDue&&!v)?'white':'#6B6F85'}} onClick={()=>{
+                      if(!v){if(pickerTid)updateField(pickerTid,{dueDate:null});else setAddDue('');closePicker();return;}
+                      // set value without closing
+                      if(pickerTid){setTasks(prev=>prev.map(x=>x.id===pickerTid?{...x,dueDate:v}:x));}else setAddDue(v);
+                      // sync dropdowns to correct date
+                      const tgt=v==='today'?now:new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+                      setTimeout(()=>{
+                        const mo=document.getElementById('pk-mo') as HTMLSelectElement;
+                        const day=document.getElementById('pk-day') as HTMLSelectElement;
+                        if(mo)mo.value=String(tgt.getMonth()+1);
+                        if(day)day.value=String(tgt.getDate());
+                      },10);
+                    }}>{l}</button>
                 ))}
               </div>
               <div style={{padding:'12px 16px 6px',display:'flex',gap:8}}>
-                {[{id:'mo',label:'月',opts:Array.from({length:12},(_,i)=>({v:i+1,l:`${i+1}月`})),def:now.getMonth()+1},
-                  {id:'day',label:'日',opts:Array.from({length:31},(_,i)=>({v:i+1,l:`${i+1}`})),def:now.getDate()}
+                {[{id:'mo',label:'月',opts:Array.from({length:12},(_,i)=>({v:i+1,l:`${i+1}月`})),def:(()=>{const d=curDue;if(!d||d==='')return now.getMonth()+1;if(d==='today')return now.getMonth()+1;if(d==='tomorrow'){const t=new Date(now);t.setDate(t.getDate()+1);return t.getMonth()+1;}return parseInt(d.slice(5,7))||now.getMonth()+1;})()},
+                  {id:'day',label:'日',opts:Array.from({length:31},(_,i)=>({v:i+1,l:`${i+1}`})),def:(()=>{const d=curDue;if(!d||d==='')return now.getDate();if(d==='today')return now.getDate();if(d==='tomorrow'){const t=new Date(now);t.setDate(t.getDate()+1);return t.getDate();}return parseInt(d.slice(8,10))||now.getDate();})()}
                 ].map(col=>(
                   <div key={col.id} style={{flex:1}}>
                     <div style={{fontSize:10,fontWeight:600,color:'#B0B8CC',textAlign:'center',marginBottom:4}}>{col.label}</div>
@@ -826,8 +838,8 @@ export default function App() {
                 ))}
               </div>
               <div style={{padding:'6px 16px 6px',display:'flex',gap:8}}>
-                {[{id:'hr',label:'時',opts:Array.from({length:24},(_,i)=>({v:i,l:String(i).padStart(2,'0')})),def:0},
-                  {id:'min',label:'分',opts:[0,5,10,15,20,25,30,35,40,45,50,55].map(v=>({v,l:String(v).padStart(2,'0')})),def:0}
+                {[{id:'hr',label:'時',opts:Array.from({length:24},(_,i)=>({v:i,l:String(i).padStart(2,'0')})),def:(()=>{if(curDue&&curDue.includes(' '))return parseInt(curDue.split(' ')[1].slice(0,2))||0;return 0;})()},
+                  {id:'min',label:'分',opts:[0,5,10,15,20,25,30,35,40,45,50,55].map(v=>({v,l:String(v).padStart(2,'0')})),def:(()=>{if(curDue&&curDue.includes(' '))return parseInt(curDue.split(' ')[1].slice(3,5))||0;return 0;})()}
                 ].map(col=>(
                   <div key={col.id} style={{flex:1}}>
                     <div style={{fontSize:10,fontWeight:600,color:'#B0B8CC',textAlign:'center',marginBottom:4}}>{col.label}</div>
