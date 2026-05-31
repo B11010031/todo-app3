@@ -439,6 +439,7 @@ export default function App() {
   const [detNotes, setDetNotes] = useState('');
   const [toast, setToast] = useState('');
   const [lastUndo, setLastUndo] = useState<any>(null);
+  const [recentDone, setRecentDone] = useState<Record<string,number>>({});
   const toastRef = useRef<NodeJS.Timeout|null>(null);
   const addInputRef = useRef<HTMLInputElement>(null);
 
@@ -453,11 +454,19 @@ export default function App() {
 
   const showToast=(msg:string)=>{setToast(msg);if(toastRef.current)clearTimeout(toastRef.current);toastRef.current=setTimeout(()=>setToast(''),2800);};
   const ts = todayStr();
+  const GRACE = 60 * 60 * 1000; // 1 hour in ms
+  const isRecentDone = (id:string) => !!recentDone[id] && (Date.now() - recentDone[id]) < GRACE;
+  const shouldShow = (t:Task) => t.status !== 'done' || isRecentDone(t.id);
 
   const toggleDone=async(id:string,subIds:string[])=>{
     const t=tasks.find(x=>x.id===id);if(!t)return;
     const ns=t.status==='done'?'todo':'done';
     setTasks(p=>p.map(x=>x.id===id?{...x,status:ns,subTasks:ns==='done'?x.subTasks.map(s=>({...s,done:true})):x.subTasks}:x));
+    if(ns==='done'){
+      setRecentDone(p=>({...p,[id]:Date.now()}));
+    } else {
+      setRecentDone(p=>{const n={...p};delete n[id];return n;});
+    }
     setLastUndo({type:'toggle',id,prev:t.status,psubs:t.subTasks});
     showToast(ns==='done'?'任務已完成 ✓':'任務已復原');
     await fetch(`/api/tasks/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:ns,subTaskIds:ns==='done'?subIds:[]})});
@@ -697,7 +706,7 @@ export default function App() {
               </div>
             </div>
             <div style={{flex:1,overflowY:'auto',paddingTop:10,paddingBottom:140,background:'#F2F3F9'}}>
-              {lt.filter(t=>t.status!=='done').map(t=>mkCard(t,'ld'))}
+              {lt.filter(t=>shouldShow(t)).map(t=>mkCard(t,'ld'))}
               {(ldFilter==='done'||ldId==='__done__')&&lt.filter(t=>t.status==='done').map(t=>mkCard(t,'ld'))}
               {lt.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>此清單沒有任務</div>}
             </div>
@@ -718,7 +727,7 @@ export default function App() {
                 <div style={{margin:'3px 16px 6px',display:'flex',alignItems:'center',gap:6}}>
                   <div style={{flex:1,height:.5,background:'#D4D6E4'}}/><span style={{fontSize:9.5,color:'#B0B8CC',whiteSpace:'nowrap' as const,display:'flex',alignItems:'center',gap:3}}><Ico n="list" size={9} color="#B0B8CC"/>今日任務</span><div style={{flex:1,height:.5,background:'#D4D6E4'}}/>
                 </div>
-                {getTodayTasks().filter(t=>!t.pinned&&t.status!=='done').map(t=>mkCard(t,'today'))}
+                {getTodayTasks().filter(t=>!t.pinned&&shouldShow(t)).map(t=>mkCard(t,'today'))}
                 {getTodayTasks().length===0&&pinnedTasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>今天沒有任務，點 + 新增</div>}
               </div>
             </div>
@@ -728,7 +737,7 @@ export default function App() {
               <Hdr title="全部" sub="所有任務"/>
               <div style={scrollStyle}>
                 {pinnedTasks.length>0&&(<><div style={{...secLbl,gap:4}}><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='#C0B4FF' strokeWidth='2' strokeLinecap='round'><path d='M12 17v5M9 9l-4 6h14l-4-6M9 9V5h6v4'/><line x1='7' y1='5' x2='17' y2='5'/></svg>置頂<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{pinnedTasks.map(t=>mkCard(t,'all'))}</>)}
-                {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>t.status!=='done').map(t=>mkCard(t,'all'))}</div>);})}
+                {lists.map(l=>{const lt=tasks.filter(t=>t.listId===l.id&&!t.pinned);if(!lt.length)return null;return(<div key={l.id}><div style={{...secLbl,gap:4}}><div style={{width:7,height:7,borderRadius:'50%',background:l.color}}/>{l.name}<div style={{flex:1,height:.5,background:'#DCDEE8'}}/></div>{lt.filter(t=>shouldShow(t)).map(t=>mkCard(t,'all'))}</div>);})}
                 {tasks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'#B0B8CC',fontSize:14}}>目前沒有任何任務</div>}
               </div>
             </div>
@@ -796,7 +805,7 @@ export default function App() {
                     <Ico n="plus" size={14} color={P}/>
                   </button>
                 </div>
-                {getTasksForDay(calYr,calMo+1,calSel).filter(t=>t.status!=='done').map(t=>mkCard(t,'cal'))}
+                {getTasksForDay(calYr,calMo+1,calSel).filter(t=>shouldShow(t)).map(t=>mkCard(t,'cal'))}
                 {getTasksForDay(calYr,calMo+1,calSel).length===0&&<div style={{textAlign:'center',padding:'20px',color:'#B0B8CC',fontSize:13}}>這天沒有任務</div>}
               </div>
             </div>
