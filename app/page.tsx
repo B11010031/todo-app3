@@ -188,10 +188,12 @@ function TaskCard({ task, lists, onToggle, onOpen, onDelete, onPin, onToggleSub,
               <span style={{fontSize:14,color:'#1A1D2E',flex:1,fontWeight:500,lineHeight:1.3,wordBreak:'break-word' as const}} onDoubleClick={e=>{e.stopPropagation();setEditing(true);setEditVal(task.name);}}>{task.name}</span>
             )}
             <button style={{width:28,height:28,borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:'none',marginRight:-4,background:task.pinned?'rgba(123,107,224,.12)':'none'}} onClick={e=>{e.stopPropagation();onPin(task.id);}}>
-              {task.pinned
-                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="#7B6BE0" stroke="none"><circle cx="12" cy="5" r="3"/><rect x="11" y="8" width="2" height="7" rx="1" fill="#7B6BE0"/><line x1="12" y1="15" x2="12" y2="22" stroke="#7B6BE0" strokeWidth="2" strokeLinecap="round"/><rect x="7" y="7" width="10" height="3" rx="1.5" fill="#7B6BE0"/></svg>
-                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="3" stroke="#D0D4E0" strokeWidth="1.5"/><rect x="11" y="8" width="2" height="7" rx="1" fill="#D0D4E0"/><line x1="12" y1="15" x2="12" y2="22" stroke="#D0D4E0" strokeWidth="2" strokeLinecap="round"/><rect x="7" y="7" width="10" height="3" rx="1.5" fill="#D0D4E0"/></svg>
-              }
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={task.pinned?'#7B6BE0':'#C8CCE0'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 17v5" stroke={task.pinned?'#7B6BE0':'#C8CCE0'}/>
+                <path d="M9 9l-4 6h14l-4-6" fill={task.pinned?'#7B6BE0':'none'} stroke={task.pinned?'#7B6BE0':'#C8CCE0'}/>
+                <path d="M9 9V5h6v4" fill={task.pinned?'rgba(123,107,224,.3)':'none'} stroke={task.pinned?'#7B6BE0':'#C8CCE0'}/>
+                <line x1="7" y1="5" x2="17" y2="5" stroke={task.pinned?'#7B6BE0':'#C8CCE0'} strokeWidth="2"/>
+              </svg>
             </button>
           </div>
           {(list||task.dueDate) && (
